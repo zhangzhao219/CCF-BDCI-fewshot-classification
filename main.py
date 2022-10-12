@@ -112,7 +112,8 @@ def read_data(data_path):
 def calculateMetrics(label,prediction):
     return f1_score(label,prediction,average='macro')
 
-def train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch):
+# def train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch):
+def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch):
     # set train mode
     model.train()
     
@@ -146,7 +147,7 @@ def train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch)
         model.zero_grad() # zero grad
         loss_single.backward()
         optimizer.step()
-        scheduler.step()
+        # scheduler.step()
 
     return loss / args.batch,eval_one_epoch(args,train_loader,model,epoch)
 
@@ -185,7 +186,7 @@ def foldData(kfold,all_dataset,dataset_len,K,index):
         train_dataset = Subset(all_dataset, train_index)
         eval_dataset = Subset(all_dataset, eval_index)
     else:
-        train_dataset, eval_dataset = random_split(all_dataset, [round(dataset_len*0.7), dataset_len-round(dataset_len*0.7)])   
+        train_dataset, eval_dataset = random_split(all_dataset, [round(dataset_len*0.8), dataset_len-round(dataset_len*0.8)])   
     return train_dataset,eval_dataset
         
 # train process
@@ -193,12 +194,14 @@ def train(args,data):
     # cross validation
     if args.K >= 2:
         kfold = StratifiedKFold(n_splits=args.K, shuffle=False)
+    else:
+        kfold = '888'
     # store metrics
     best_metrics_list = [0 for i in range(args.K)]
     # cross validation or not (if not, args.K=1 one time)
     for n_fold in range(args.K):
         # build model
-        model = BertModel(n_labels=36)
+        model = BertModel(bert=BERT,n_labels=36)
         # use GPU
         if args.gpu:
             model = model.cuda()
@@ -221,7 +224,7 @@ def train(args,data):
         # optimizer = AdamW(optimizer_grouped_parameters, lr=args.lr)
         optimizer = AdamW(model.parameters(), lr=args.lr)
         # warmup
-        scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps = round(dataset_len / args.batch) * args.epoch, num_training_steps = dataset_len * args.epoch)
+        # scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps = round(dataset_len / args.batch) * args.epoch, num_training_steps = dataset_len * args.epoch)
         # sign for cross validation or not
         K = n_fold
         if args.K >= 2:
@@ -240,7 +243,8 @@ def train(args,data):
             train_loader = DataLoader(train_dataset,batch_size=args.batch,shuffle=True,drop_last=False)
             eval_loader = DataLoader(eval_dataset,batch_size=args.batch*8,shuffle=False,drop_last=False)
             # train and evaluate train dataset
-            loss,metrics = train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch+1)
+            # loss,metrics = train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch+1)
+            loss,metrics = train_one_epoch(args,train_loader,model,optimizer,criterion,epoch+1)
             logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics:{.6}}')
             # evaluate eval dataset
             metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
@@ -278,7 +282,7 @@ def test(args,data,mode):
         if args.K >= 2:
             K += 1
         # build model
-        model = BertModel(n_labels=36)
+        model = BertModel(bert=BERT,n_labels=36)
         # use GPU
         if args.gpu:
             model = model.cuda()

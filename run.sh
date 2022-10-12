@@ -53,27 +53,26 @@
 python3 main.py \
 --train \
 --batch 24 \
---epoch 60 \
+--epoch 30 \
 --data_dir fewshot \
 --checkpoint 10 \
---K 5 \
+--K 10 \
 --save --gpu 2 3 --lr 2e-5 --seed 42
-
 
 ## 测试
 
 python3 main.py \
 --test \
---batch 256 \
+--batch 512 \
 --data_dir fewshot \
---K 5 \
---gpu 2 3 --lr 2e-5 --seed 42
+--K 10 \
+--gpu 2 3
 
 ## 推理
 
 python3 main.py \
 --predict \
---batch 256 \
+--batch 512 \
 --data_dir fewshot \
---K 5 \
---gpu 2 3 --lr 2e-5 --seed 42
+--K 10 \
+--gpu 2 3

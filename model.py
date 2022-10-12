@@ -15,6 +15,11 @@ def getBert(bert_name):
         model_config = AutoConfig.from_pretrained('nghuyong/ernie-3.0-base-zh')
         model_config.output_hidden_states = True
         bert = AutoModel.from_pretrained('nghuyong/ernie-3.0-base-zh', num_labels=36, output_attentions=False, output_hidden_states=False)
+    elif bert_name == 'mengzi':
+        print('load mengzi-bert-base')
+        model_config = AutoConfig.from_pretrained('Langboat/mengzi-bert-base')
+        model_config.output_hidden_states = True
+        bert = AutoModel.from_pretrained('Langboat/mengzi-bert-base', num_labels=36, output_attentions=False, output_hidden_states=False)
     elif bert_name == 'bert_classification':
         print('load bert-base-uncased')
         # model_config = BertConfig.from_pretrained('bert-base-uncased')
@@ -35,6 +40,9 @@ def getTokenizer(bert_name):
     elif bert_name == 'ernie':
         print('load ernie-3.0-base-zh tokenizer')
         tokenizer = AutoTokenizer.from_pretrained("nghuyong/ernie-3.0-base-zh")
+    elif bert_name == 'mengzi':
+        print('load mengzi-bert-base tokenizer')
+        tokenizer = AutoTokenizer.from_pretrained("Langboat/mengzi-bert-base")
     elif bert_name == 'bert':
         print('load bert-base-uncased tokenizer')
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased',do_lower_case=True)
