@@ -5,55 +5,62 @@ import torch
 import random
 import logging
 import argparse
+
 import numpy as np
 import pandas as pd
 
 import torch.nn as nn
-from torch.optim import AdamW
 from torch.utils.data import DataLoader,Subset,random_split
-from sklearn.metrics import f1_score
+
 from tensorboardX import SummaryWriter
+
+from sklearn.metrics import precision_score,recall_score,f1_score
 from sklearn.model_selection import KFold,StratifiedKFold
+
+from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
 from model import BertModel,getTokenizer
 from dataset import LoadData
 from log import config_logging
 
-parser = argparse.ArgumentParser(description='Learning Pytorch NLP')
+parser = argparse.ArgumentParser(description='Pytorch NLP')
+
+parser.add_argument('--train', action='store_true', help='Whether to train')
+parser.add_argument('--test', action='store_true', help='Whether to test')
+parser.add_argument('--predict', action='store_true', help='Whether to predict')
+
 parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
 parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
-parser.add_argument('--checkpoint',type=int, default=0, help='Use checkpoint')
-parser.add_argument('--data_dir',type=str, required=True, help='Data Location')
+parser.add_argument('--datetime',type=str, required=True, help='Get Time Stamp')
 parser.add_argument('--epoch', type=int, default=5, help='Training epochs')
 parser.add_argument('--gpu', type=str, nargs='+', help='Use GPU')
-parser.add_argument('--K', type=int, default=1, help='K-fold')
+parser.add_argument('--lr',type=float, default=0.001, help='learning rate')
+parser.add_argument('--seed',type=int, default=42, help='Random Seed')
+
+parser.add_argument('--data_folder_dir',type=str, required=True, help='Data Folder Location')
+parser.add_argument('--data_file',type=str, help='Data Filename')
+
+parser.add_argument('--checkpoint',type=int, default=0, help='Use checkpoint')
 parser.add_argument('--load', action='store_true', help='load from checkpoint')
 parser.add_argument('--load_pt', type=str, help='load from checkpoint')
-parser.add_argument('--lr',type=float, default=0.001, help='learning rate')
-parser.add_argument('--predict', action='store_true', help='Whether to predict')
 parser.add_argument('--save', action='store_true', help='Whether to save model')
-parser.add_argument('--seed',type=int, default=42, help='Random Seed')
-parser.add_argument('--test', action='store_true', help='Whether to test')
-parser.add_argument('--train', action='store_true', help='Whether to train')
+
+parser.add_argument('--bert',type=str, required=True, help='Choose Bert')
+parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--warmup',type=float, default=0.1, help='warm up ratio')
+
 args = parser.parse_args()
 
-BERT = 'ernie'
-MODEL_PATH = './models/'
-DATA_PATH = './data/'
-TRAIN_DATA = DATA_PATH + args.data_dir + '/train.json'
-TEST_DATA = DATA_PATH + args.data_dir + '/testA.json'
-
-if not os.path.exists(MODEL_PATH):
-    os.makedirs(MODEL_PATH)
+TIMESTAMP = args.datetime
 
 # log
-config_logging("log")
+config_logging("log_"+TIMESTAMP)
 logging.info('Log is ready!')
+logging.info(args)
 
 if args.board:
-    writer = SummaryWriter()
+    writer = SummaryWriter('runs/'+TIMESTAMP)
     logging.info('Tensorboard is ready!')
 
 if args.gpu:
@@ -110,7 +117,10 @@ def read_data(data_path):
 
 # evaluate method
 def calculateMetrics(label,prediction):
-    return f1_score(label,prediction,average='macro')
+    P = round(precision_score(label,prediction,average='macro',zero_division=0),6)
+    R = round(recall_score(label,prediction,average='macro',zero_division=0),6)
+    F1 = round(f1_score(label,prediction,average='macro',zero_division=0),6)
+    return {'F1score':F1,'Precision':P,'Recall':R}
 
 # def train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch):
 def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch):
@@ -201,15 +211,18 @@ def train(args,data):
     # cross validation or not (if not, args.K=1 one time)
     for n_fold in range(args.K):
         # build model
-        model = BertModel(bert=BERT,n_labels=36)
+        model = BertModel(bert=args.bert,n_labels=36)
         # use GPU
         if args.gpu:
             model = model.cuda()
             if len(args.gpu) >= 2:
                 model= nn.DataParallel(model)
-        
-        logging.info(f'Start Training {n_fold}!')
-        tokenizer = getTokenizer(BERT)
+        # sign for cross validation or not
+        K = n_fold
+        if args.K >= 2:
+            K += 1
+        logging.info(f'Start Training {K}!')
+        tokenizer = getTokenizer(args.bert)
         # data
         all_dataset = LoadData(data,tokenizer)
         # len(data)
@@ -222,13 +235,9 @@ def train(args,data):
         #     {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         # ]
         # optimizer = AdamW(optimizer_grouped_parameters, lr=args.lr)
-        optimizer = AdamW(model.parameters(), lr=args.lr)
+        optimizer = AdamW(model.parameters(), lr=args.lr,correct_bias=True)
         # warmup
         # scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps = round(dataset_len / args.batch) * args.epoch, num_training_steps = dataset_len * args.epoch)
-        # sign for cross validation or not
-        K = n_fold
-        if args.K >= 2:
-            K += 1
         # restore from checkpoint
         if args.load:
             logging.info(f'Load checkpoint_{args.load_pt}_{K}_epoch.pt')
@@ -244,24 +253,25 @@ def train(args,data):
             eval_loader = DataLoader(eval_dataset,batch_size=args.batch*8,shuffle=False,drop_last=False)
             # train and evaluate train dataset
             # loss,metrics = train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch+1)
-            loss,metrics = train_one_epoch(args,train_loader,model,optimizer,criterion,epoch+1)
-            logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics:{.6}}')
+            loss,metrics_train = train_one_epoch(args,train_loader,model,optimizer,criterion,epoch+1)
+            logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics_train}')
             # evaluate eval dataset
             metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
-            logging.info(f'Eval Epoch = {epoch+1} Metrics:{metrics:{.6}}')
+            logging.info(f'Eval Epoch = {epoch+1} Metrics:{metrics}')
             # save model
             if args.checkpoint != 0 and epoch % args.checkpoint == 0:
                 torch.save({'epoch': epoch,'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),'loss': loss}, MODEL_PATH + 'checkpoint_{}_{}_epoch.pt'.format(epoch,K))
                 logging.info(f'checkpoint_{epoch}_{K}_epoch.pt Saved!')
             # save better model
-            if args.save and metrics > best_metrics_list[n_fold]:
+            if args.save and metrics[list(metrics.keys())[0]] > best_metrics_list[n_fold]:
                 torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
-                logging.info(f'Test metrics:{metrics:{.6}} > max_accuracy! Saved!')
-                best_metrics_list[n_fold] = metrics
+                logging.info(f'Test metrics:{metrics[list(metrics.keys())[0]]} > max_metric! Saved!')
+                best_metrics_list[n_fold] = metrics[list(metrics.keys())[0]]
             # tensorboard
             if args.board:
-                writer.add_scalar('loss', loss, epoch)
-                writer.add_scalar('metrics', metrics, epoch)
+                writer.add_scalar(f'K_{K}/Loss', loss, epoch+1)
+                for i in list(metrics.keys()):
+                    writer.add_scalars(f'K_{K}/{i}', {'Train_'+i:metrics_train[i],'Eval_'+i:metrics[i]}, epoch+1)
         # clear gpu parameters
         if args.gpu:
             torch.cuda.empty_cache()
@@ -271,7 +281,7 @@ def test(args,data,mode):
     logging.info('Start evaluate!')
 
     # test data
-    test_dataset = LoadData(data,getTokenizer(BERT))
+    test_dataset = LoadData(data,getTokenizer(args.bert))
     test_loader = DataLoader(test_dataset,batch_size=args.batch,shuffle=False,drop_last=False)
 
     labellist = []
@@ -282,7 +292,7 @@ def test(args,data,mode):
         if args.K >= 2:
             K += 1
         # build model
-        model = BertModel(bert=BERT,n_labels=36)
+        model = BertModel(bert=args.bert,n_labels=36)
         # use GPU
         if args.gpu:
             model = model.cuda()
@@ -309,7 +319,7 @@ def test(args,data,mode):
                 output = model(input_id,mask)
             if args.gpu:
                 output = output.cpu()
-            output = output.numpy()
+            output = nn.Softmax(dim=-1)(output).numpy()
             output_shape = output.shape
             predict_result[n_fold][step*args.batch:step*args.batch+output_shape[0]] = output
 
@@ -332,7 +342,7 @@ def predict(args,data):
     predict_result = test(args,data,1)
     predict_result = predict_result.mean(axis=0).argmax(axis=1)
     data['label'] = predict_result
-    data[['id','label']].to_csv(DATA_PATH + args.data_dir +'/result.csv',index=None)
+    data[['id','label']].to_csv('result_'+TIMESTAMP+'.csv',index=None)
     logging.info('Predict Finished!')
 
 if __name__ == '__main__':
@@ -340,9 +350,14 @@ if __name__ == '__main__':
     set_seed(args.seed)
     # print(args.batch, args.epoch, args.eval, args.gpu, args.seed, args.train)
 
+    MODEL_PATH = './models/' + TIMESTAMP + '/'
+    DATA_PATH = './data/'
+    DATA_PATH = os.path.join(DATA_PATH,args.data_folder_dir,args.data_file)
+    if not os.path.exists(MODEL_PATH):
+        os.makedirs(MODEL_PATH)
+
     # read data
-    train_data = read_data(TRAIN_DATA)
-    test_data = read_data(TEST_DATA)
+    DATA = read_data(DATA_PATH)
     
     # build vocab
     # word_dict,id_to_word = build_vocab(pd.concat([train_data, test_data], axis=0))
@@ -357,8 +372,8 @@ if __name__ == '__main__':
     # num_classes = 36  # 0 or 1
     
     if args.train:
-        train(args,train_data)
+        train(args,DATA)
     if args.test:
-        test(args,train_data,0)
+        test(args,DATA,0)
     if args.predict:
-        predict(args,test_data)
+        predict(args,DATA)
