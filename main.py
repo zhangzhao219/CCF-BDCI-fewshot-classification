@@ -20,7 +20,7 @@ from sklearn.model_selection import KFold,StratifiedKFold
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from model import BertModel,getTokenizer
+from model import BertModel,RDrop,EMA,PGD,FGM,getTokenizer
 from dataset import LoadData
 from log import config_logging
 
@@ -32,35 +32,39 @@ parser.add_argument('--predict', action='store_true', help='Whether to predict')
 
 parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
 parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
-parser.add_argument('--datetime',type=str, required=True, help='Get Time Stamp')
+parser.add_argument('--datetime', type=str, required=True, help='Get Time Stamp')
 parser.add_argument('--epoch', type=int, default=5, help='Training epochs')
 parser.add_argument('--gpu', type=str, nargs='+', help='Use GPU')
-parser.add_argument('--lr',type=float, default=0.001, help='learning rate')
+parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--seed',type=int, default=42, help='Random Seed')
 
-parser.add_argument('--data_folder_dir',type=str, required=True, help='Data Folder Location')
-parser.add_argument('--data_file',type=str, help='Data Filename')
+parser.add_argument('--data_folder_dir', type=str, required=True, help='Data Folder Location')
+parser.add_argument('--data_file', type=str, help='Data Filename')
 
-parser.add_argument('--checkpoint',type=int, default=0, help='Use checkpoint')
+parser.add_argument('--checkpoint', type=int, default=0, help='Use checkpoint')
 parser.add_argument('--load', action='store_true', help='load from checkpoint')
 parser.add_argument('--load_pt', type=str, help='load from checkpoint')
 parser.add_argument('--save', action='store_true', help='Whether to save model')
 
-parser.add_argument('--bert',type=str, required=True, help='Choose Bert')
+parser.add_argument('--bert', type=str, required=True, help='Choose Bert')
 parser.add_argument('--K', type=int, default=1, help='K-fold')
-parser.add_argument('--warmup',type=float, default=0.1, help='warm up ratio')
+parser.add_argument('--warmup', type=float, default=0.1, help='warm up ratio')
+parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
+parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
+parser.add_argument('--fgm', type=float, default=1.0, help='FGM epsilon')
+parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 
 args = parser.parse_args()
 
 TIMESTAMP = args.datetime
 
 # log
-config_logging("log_"+TIMESTAMP)
+config_logging("log_" + TIMESTAMP)
 logging.info('Log is ready!')
 logging.info(args)
 
 if args.board:
-    writer = SummaryWriter('runs/'+TIMESTAMP)
+    writer = SummaryWriter('runs/' + TIMESTAMP)
     logging.info('Tensorboard is ready!')
 
 if args.gpu:
@@ -123,9 +127,14 @@ def calculateMetrics(label,prediction):
     return {'F1score':F1,'Precision':P,'Recall':R}
 
 # def train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch):
-def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch):
+def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch,ema):
     # set train mode
     model.train()
+
+    if args.fgm != 0.0:
+        fgm = FGM(model,args.fgm)
+    if args.pgd != 0:
+        pgd = PGD(model)
     
     loss = 0
 
@@ -142,26 +151,54 @@ def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch):
             model = model.cuda()
             mask = mask.cuda()
             input_id = input_id.cuda()
-        output = model(input_id,mask)
-        if args.gpu:
-            output = output.cpu()
-        loss_single = criterion(output, label)
+            label = label.cuda()
+        output = model(input_id, mask)
+        if args.rdrop != 0.0:
+            output_rdrop = model(input_id, mask)
+            loss_single = criterion(output, output_rdrop, label, args.rdrop)
+        else:
+            loss_single = criterion(output, label)
         loss += loss_single.item()
+        # backward 
+        loss_single.backward()
+
+        # FGM attack
+        if args.fgm != 0.0:
+            fgm.attack() # attack on embedding
+            output_adv = model(input_id, mask)
+            loss_adv = criterion(output_adv, label)
+            loss_adv.backward()
+            fgm.restore() # restore embedding
+
+        # PGD attack
+        if args.pgd != 0:
+            pgd.backup_grad()
+            for t in range(args.pgd):
+                pgd.attack(is_first_attack=(t==0)) # attack on embedding,and backup param.data when first attack
+                if t != args.pgd-1:
+                    model.zero_grad()
+                else:
+                    pgd.restore_grad()
+                output_adv = model(input_id, mask)
+                loss_adv = criterion(output_adv, label)
+                loss_adv.backward()
+            pgd.restore() # 恢复embedding参数
+
+        optimizer.step()
+        # scheduler.step()
+        if args.ema != 0.0:
+            ema.update()
+
+        model.zero_grad() # zero grad
 
         # renew tqdm
         epoch_iterator.update(1)
         # add description in the end
         epoch_iterator.set_postfix(loss=loss_single.item())
 
-        # backward 
-        model.zero_grad() # zero grad
-        loss_single.backward()
-        optimizer.step()
-        # scheduler.step()
+    return loss / args.batch, eval_one_epoch(args, train_loader, model, epoch)
 
-    return loss / args.batch,eval_one_epoch(args,train_loader,model,epoch)
-
-def eval_one_epoch(args,eval_loader,model,epoch):
+def eval_one_epoch(args, eval_loader, model, epoch):
     # test
     model.eval()
     epoch_iterator = tqdm.tqdm(eval_loader, desc="Iteration", total=len(eval_loader))
@@ -205,7 +242,7 @@ def train(args,data):
     if args.K >= 2:
         kfold = StratifiedKFold(n_splits=args.K, shuffle=False)
     else:
-        kfold = '888'
+        kfold = None
     # store metrics
     best_metrics_list = [0 for i in range(args.K)]
     # cross validation or not (if not, args.K=1 one time)
@@ -217,6 +254,11 @@ def train(args,data):
             model = model.cuda()
             if len(args.gpu) >= 2:
                 model= nn.DataParallel(model)
+        if args.ema != 0.0:
+            ema = EMA(model, args.ema)
+            ema.register()
+        else:
+            ema = None
         # sign for cross validation or not
         K = n_fold
         if args.K >= 2:
@@ -228,7 +270,11 @@ def train(args,data):
         # len(data)
         dataset_len = all_dataset.__len__()
         # loss function
-        criterion = nn.CrossEntropyLoss()
+        # whether to use RDrop
+        if args.rdrop != 0.0:
+            criterion = RDrop()
+        else:
+            criterion = nn.CrossEntropyLoss()
         # no_decay = ['bias', 'LayerNorm.weight']
         # optimizer_grouped_parameters = [
         #     {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
@@ -253,8 +299,10 @@ def train(args,data):
             eval_loader = DataLoader(eval_dataset,batch_size=args.batch*8,shuffle=False,drop_last=False)
             # train and evaluate train dataset
             # loss,metrics = train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch+1)
-            loss,metrics_train = train_one_epoch(args,train_loader,model,optimizer,criterion,epoch+1)
+            loss,metrics_train = train_one_epoch(args, train_loader, model, optimizer, criterion, epoch+1, ema)
             logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics_train}')
+            if args.ema != 0.0:
+                ema.apply_shadow()
             # evaluate eval dataset
             metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
             logging.info(f'Eval Epoch = {epoch+1} Metrics:{metrics}')
@@ -272,6 +320,8 @@ def train(args,data):
                 writer.add_scalar(f'K_{K}/Loss', loss, epoch+1)
                 for i in list(metrics.keys()):
                     writer.add_scalars(f'K_{K}/{i}', {'Train_'+i:metrics_train[i],'Eval_'+i:metrics[i]}, epoch+1)
+            # if args.ema != 0.0:
+            #     ema.restore()
         # clear gpu parameters
         if args.gpu:
             torch.cuda.empty_cache()
