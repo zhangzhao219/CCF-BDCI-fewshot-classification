@@ -51,7 +51,7 @@ parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--warmup', type=float, default=0.1, help='warm up ratio')
 parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
-parser.add_argument('--fgm', type=float, default=1.0, help='FGM epsilon')
+parser.add_argument('--fgm', type=float, default=0.0, help='FGM epsilon')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 
 args = parser.parse_args()
