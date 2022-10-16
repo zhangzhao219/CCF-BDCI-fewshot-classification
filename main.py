@@ -29,6 +29,7 @@ parser = argparse.ArgumentParser(description='Pytorch NLP')
 parser.add_argument('--train', action='store_true', help='Whether to train')
 parser.add_argument('--test', action='store_true', help='Whether to test')
 parser.add_argument('--predict', action='store_true', help='Whether to predict')
+parser.add_argument('--predict_with_score', action='store_true', default=False, help='Whether to predict')
 
 parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
 parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
@@ -390,9 +391,15 @@ def test(args,data,mode):
 # predict unlabeled data
 def predict(args,data):
     predict_result = test(args,data,1)
+    predict_score = predict_result.mean(axis=0).max(axis=1)
     predict_result = predict_result.mean(axis=0).argmax(axis=1)
-    data['label'] = predict_result
-    data[['id','label']].to_csv('result_'+TIMESTAMP+'.csv',index=None)
+    if not args.predict_with_score:
+        data['label'] = predict_result
+        data[['id','label']].to_csv('result_'+TIMESTAMP+'.csv',index=None)
+    else:
+        data['label'] = predict_result
+        data['score'] = predict_score
+        data[['id','label','score']].to_csv('result_'+TIMESTAMP+'.csv',index=None)
     logging.info('Predict Finished!')
 
 if __name__ == '__main__':
