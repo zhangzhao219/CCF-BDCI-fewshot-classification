@@ -29,3 +29,9 @@ python main.py \
 
 ## 打包
 # python pack.py --datetime 2022_10_13_10_59_28 --score 0.0001245
+
+# 根据类别置信度筛选伪标签，形成扩充训练集 expand_train.json
+# python add_pseudo_labels.py \
+# --predict_csv result.csv \
+# --corpus_json testA.json --origin_train_json train.json \
+# --data_folder_dir fewshot
