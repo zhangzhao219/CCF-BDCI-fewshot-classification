@@ -188,7 +188,7 @@ def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch,ema):
         optimizer.step()
         # scheduler.step()
         if args.ema != 0.0:
-            ema.update()
+            ema.update(warmup_if = epoch < args.epoch / 4)
 
         model.zero_grad() # zero grad
 
