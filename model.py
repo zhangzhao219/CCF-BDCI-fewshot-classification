@@ -22,18 +22,24 @@ class BertModel(nn.Module):
         self.bert = getBert(bert)
         self.feature_layers = feature_layers
         self.dropout = nn.Dropout(dropout)
-        self.linear = nn.Linear(self.bert.config.hidden_size * feature_layers, n_labels)
+        # self.linear = nn.Linear(self.bert.config.hidden_size * feature_layers, n_labels)
  
-        nn.init.normal_(self.linear.weight, std=0.02)
-        nn.init.normal_(self.linear.bias, 0)
+        # nn.init.normal_(self.linear.weight, std=0.02)
+        # nn.init.normal_(self.linear.bias, 0)
+        self.linear = nn.Sequential(
+            nn.Linear(768, 128),
+            nn.Tanh(),
+            nn.Linear(128, n_labels)
+        )
 
     def forward(self,input_ids,token_type_ids,attention_mask):
         outputs = self.bert(input_ids=input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)
         # print(outputs['pooler_output'].shape)
         # print(outputs['last_hidden_state'].shape)
         # print(outputs['hidden_states'].shape)
-        concat_output = torch.cat([outputs['hidden_states'][-i][:, 0] for i in range(1, self.feature_layers+1)], dim=-1)
-        return self.linear(self.dropout(concat_output))
+        # output = torch.cat([outputs['hidden_states'][-i][:, 0] for i in range(1, self.feature_layers+1)], dim=-1)
+        output = torch.mean(outputs['last_hidden_state'], 1)
+        return self.linear(self.dropout(output))
 
 class RDrop(nn.Module):
     """
