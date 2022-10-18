@@ -51,7 +51,7 @@ parser.add_argument('--save', action='store_true', help='Whether to save model')
 parser.add_argument('--bert', type=str, required=True, help='Choose Bert')
 parser.add_argument('--dropout', type=float, default=0.4, help='dropout ratio')
 parser.add_argument('--feature_layer', type=int, default=4, help='feature layers num')
-parser.add_argument('--freeze', type=int, default=8, help='freeze bert parameters')
+parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameters')
 
 parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
 parser.add_argument('--fgm', action='store_true', help='FGM attack')
@@ -412,7 +412,7 @@ def test(args,data,mode):
                 input_ids = input_ids.cuda()
                 token_type_ids = token_type_ids.cuda()
                 attention_mask = attention_mask.cuda()
-                label = label.cuda()
+                
             with torch.no_grad():
                 output = model(input_ids, token_type_ids, attention_mask)
             if args.gpu:

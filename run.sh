@@ -29,25 +29,25 @@ python main.py \
 --batch 24 --board --datetime ${TIMESTAMP} --epoch 50 --gpu 2 3 --lr 2e-5 --seed ${SEED} \
 --data_folder_dir fewshot --data_file train.json --label 36 \
 --checkpoint 25 --save \
---bert ${BERT} --dropout 0.4 --feature_layer 4 --freeze 8 \
+--bert ${BERT} --dropout 0.4 \
 --K ${K} --split_test_ratio 0.2
 # --ema 0.999 --fgm --pgd 3 --rdrop 0.4 --warmup 0.1
   
-# ## 测试
-# python main.py \
-# --test \
-# --batch 512 --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
-# --data_folder_dir fewshot --data_file train.json --label 36 \
-# --bert ${BERT} --dropout 0.4 --feature_layer 4 \
-# --K ${K}
+## 测试
+python main.py \
+--test \
+--batch 256 --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
+--data_folder_dir fewshot --data_file train.json --label 36 \
+--bert ${BERT} --dropout 0.4 \
+--K ${K}
 
-# ## 推理
-# python main.py \
-# --predict \
-# --batch 512  --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
-# --data_folder_dir fewshot --data_file testA.json --label 36 \
-# --bert ${BERT} --dropout 0.4 --feature_layer 4 \
-# --K ${K}
+## 推理
+python main.py \
+--predict \
+--batch 256  --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
+--data_folder_dir fewshot --data_file testA.json --label 36 \
+--bert ${BERT} --dropout 0.4 \
+--K ${K}
 
 ## 打包
 # python pack.py --datetime 2022_10_13_10_59_28 --score 0.0001245
