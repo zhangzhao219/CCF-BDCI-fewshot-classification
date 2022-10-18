@@ -8,26 +8,37 @@ parser = argparse.ArgumentParser(description='Pytorch NLP')
 parser.add_argument('--train', action='store_true', help='Whether to train')
 parser.add_argument('--test', action='store_true', help='Whether to test')
 parser.add_argument('--predict', action='store_true', help='Whether to predict')
+parser.add_argument('--predict_with_score', action='store_true', default=False, help='Whether to predict')
 
 parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
 parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
-parser.add_argument('--datetime',type=str, required=True, help='Get Time Stamp')
-parser.add_argument('--epoch', type=int, default=5, help='Training epochs')
+parser.add_argument('--datetime', type=str, required=True, help='Get Time Stamp')
+parser.add_argument('--epoch', type=int, default=50, help='Training epochs')
 parser.add_argument('--gpu', type=str, nargs='+', help='Use GPU')
-parser.add_argument('--lr',type=float, default=0.001, help='learning rate')
+parser.add_argument('--lr', type=float, default=2e-5, help='learning rate')
 parser.add_argument('--seed',type=int, default=42, help='Random Seed')
 
-parser.add_argument('--data_folder_dir',type=str, required=True, help='Data Folder Location')
-parser.add_argument('--data_file',type=str, help='Data Filename')
+parser.add_argument('--data_folder_dir', type=str, required=True, help='Data Folder Location')
+parser.add_argument('--data_file', type=str, help='Data Filename')
+parser.add_argument('--label', type=int, default=36, help='label num')
 
-parser.add_argument('--checkpoint',type=int, default=0, help='Use checkpoint')
+parser.add_argument('--checkpoint', type=int, default=0, help='Use checkpoint')
 parser.add_argument('--load', action='store_true', help='load from checkpoint')
 parser.add_argument('--load_pt', type=str, help='load from checkpoint')
 parser.add_argument('--save', action='store_true', help='Whether to save model')
 
-parser.add_argument('--bert',type=str, required=True, help='Choose Bert')
+parser.add_argument('--bert', type=str, required=True, help='Choose Bert')
+parser.add_argument('--dropout', type=float, default=0.4, help='dropout ratio')
+parser.add_argument('--feature_layer', type=int, default=4, help='feature layers num')
+parser.add_argument('--freeze', type=int, default=8, help='freeze bert parameters')
+
+parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
+parser.add_argument('--fgm', action='store_true', help='FGM attack')
 parser.add_argument('--K', type=int, default=1, help='K-fold')
-parser.add_argument('--warmup',type=float, default=0.1, help='warm up ratio')
+parser.add_argument('--pgd', type=int, default=0, help='PGD K')
+parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
+parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
 args = parser.parse_args()
 ```
@@ -38,9 +49,11 @@ args = parser.parse_args()
 python main.py \
 --train \
 --batch 24 --board --datetime ${TIMESTAMP} --epoch 50 --gpu 2 3 --lr 2e-5 --seed ${SEED} \
---data_folder_dir fewshot --data_file train.json \
---checkpoint 10 --save \
---bert ${BERT} --K ${K}
+--data_folder_dir fewshot --data_file train.json --label 36 \
+--checkpoint 25 --save \
+--bert ${BERT} --dropout 0.4 --feature_layer 4 --freeze 8 \
+--K ${K} --split_test_ratio 0.2
+# --ema 0.999 --fgm --pgd 3 --rdrop 0.4 --warmup 0.1
 ```
 
 ## 测试
@@ -49,8 +62,9 @@ python main.py \
 python main.py \
 --test \
 --batch 512 --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
---data_folder_dir fewshot --data_file train.json \
---bert ${BERT} --K ${K}
+--data_folder_dir fewshot --data_file train.json --label 36 \
+--bert ${BERT} --dropout 0.4 --feature_layer 4 \
+--K ${K}
 ```
 
 ## 推理
@@ -59,8 +73,9 @@ python main.py \
 python main.py \
 --predict \
 --batch 512  --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
---data_folder_dir fewshot --data_file testA.json \
---bert ${BERT} --K ${K}
+--data_folder_dir fewshot --data_file testA.json --label 36 \
+--bert ${BERT} --dropout 0.4 --feature_layer 4 \
+--K ${K}
 ```
 
 ## 打包
@@ -69,14 +84,27 @@ python main.py \
 python pack.py --datetime 2022_10_13_10_59_28 --score 0.0001245
 ```
 
+## 伪标签
+
+```bash
+python add_pseudo_labels.py \
+--predict_csv result.csv \
+--corpus_json testA.json --origin_train_json train.json \
+--data_folder_dir fewshot
+```
+
 # 训练记录
 
 ## TO DO LIST
 
 - [X] AdamW  加 correct_bias = True 《Revisiting Few-sample BERT Fine-tuning》 https://zhuanlan.zhihu.com/p/524036087
 - [X] 对官方测试集打伪标签加入训练集
-- [ ] warmup 正确应用
+- [X] warmup 正确应用
 - [X] ema、pgd、fgm使用
+- [X] 模型优化：删除ReLU，不同层Bert进行连接
+- [X] 增加更多的Bert
+- [X] K=1时也采用分层采样
+- [ ] Mixtext
 
 ## 记录
 
@@ -90,7 +118,7 @@ python pack.py --datetime 2022_10_13_10_59_28 --score 0.0001245
 | 训练开始：2022/10/15 14:01:25<br />训练结束：2022/10/15 14:35:36                                                                       | 张兆   | 未验证                  | nghuyong/ernie-3.0-base-zh | 50       | 1        | 添加FGM：<br />2080Ti*4 batch=24<br />random_seed=42<br />correct_bias = True                                                                                                         | 未添加FGM：0.909574<br />添加FGM：0.924612                                                                                                                                                                                                                                                                                                                                                            | 未添加FGM：0.568337<br />添加FGM：0.60684                                                                                             |
 | 训练开始：2022/10/15 14:37:24<br />训练结束：2022/10/15 15:49:57                                                                       | 张兆   | 未验证                  | nghuyong/ernie-3.0-base-zh | 50       | 1        | 添加PGD：<br />2080Ti*4 batch=24<br />random_seed=42<br />correct_bias = True<br />PGD_K=3                                                                                            | 未添加PGD：0.909574<br />添加PGD：0.917637                                                                                                                                                                                                                                                                                                                                                            | 未添加PGD：0.568337<br />添加PGD：0.582854                                                                                            |
 | 训练开始：2022/10/15 21:18:01<br />训练结束：2022/10/16 03:22:04                                                                       | 张兆   | 0.56684304078           | nghuyong/ernie-3.0-base-zh | 50       | 10       | 2080Ti*4 batch=24<br />random_seed=42<br />correct_bias = True<br />RDrop=0.4                                                                                                         | best_1.pt : 0.964261<br />best_2.pt : 0.937494<br />best_3.pt : 0.93178<br />best_4.pt : 0.915917<br />best_5.pt : 0.954728<br />best_6.pt : 0.95125<br />best_7.pt : 0.951136<br />best_8.pt : 0.957213<br />best_9.pt : 0.959292<br />best_10.pt : 0.967787<br />bagging :  0.995802                                                                                                     | 0.58019<br />0.576124<br />0.526915<br />0.577535<br />0.612728<br />0.559396<br />0.549781<br />0.646989<br />0.537495<br />0.687826 |
-|                                                                                                                                        | 李一鸣 | **0.60286913357** |    Langboat/mengzi-bert-base  | 40        | 5        | batch=12 pseudo-labelling                                                                                                                                                                                 |                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                       |
+|                                                                                                                                        | 李一鸣 | **0.60286913357** | Langboat/mengzi-bert-base  | 40       | 5        | batch=12 pseudo-labelling                                                                                                                                                             |                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                       |
 | 训练开始：2022/10/16 17:28:14<br />训练结束：2022/10/16 18:10:27                                                                       | 张兆   | 0.52782175403           | Langboat/mengzi-bert-base  | 50       | 1        | 2080Ti*2 batch=24                                                                                                                                                                     | 0.911089                                                                                                                                                                                                                                                                                                                                                                                              | 0.604567                                                                                                                              |
 | 训练开始：2022/10/16 18:10:31<br />训练结束：2022/10/16 18:58:40                                                                       | 张兆   | 0.50326362551           | Langboat/mengzi-bert-base  | 50       | 1        | 2080Ti*4 batch=24<br />RDrop=0.4                                                                                                                                                      | 0.900517                                                                                                                                                                                                                                                                                                                                                                                              | 0.560547                                                                                                                              |
 | 训练开始：2022/10/16 18:58:44<br />训练结束：2022/10/16 19:41:36                                                                       | 张兆   | 0.50364182397           | nghuyong/ernie-3.0-base-zh | 50       | 1        | 2080Ti*2 batch=24                                                                                                                                                                     | 0.914422                                                                                                                                                                                                                                                                                                                                                                                              | 0.566295                                                                                                                              |

@@ -1,31 +1,53 @@
 # variables
 SEED=42
 K=1
-BERT=ernie
+
+# 直接联网下载模型文件
+# BERT='nghuyong/ernie-3.0-base-zh'
+# BERT='Langboat/mengzi-bert-base'
+# BERT='hfl/chinese-macbert-base'
+# BERT='hfl/chinese-roberta-wwm-ext'
+# 注意large模型是24层
+# BERT='hfl/chinese-macbert-large'
+# BERT='hfl/chinese-roberta-wwm-ext-large'
+
+# 调用已经下载好的原始文件
+# BERT='pretrained/nghuyong/ernie-3.0-base-zh'
+BERT='pretrained/Langboat/mengzi-bert-base'
+# BERT='pretrained/hfl/chinese-macbert-base'
+# BERT='pretrained/hfl/chinese-roberta-wwm-ext'
+# 注意large模型是24层
+# BERT='pretrained/hfl/chinese-macbert-large'
+# BERT='pretrained/hfl/chinese-roberta-wwm-ext-large'
+
 TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
 echo $TIMESTAMP
 
 ## 训练
 python main.py \
 --train \
---batch 24 --board --datetime ${TIMESTAMP} --epoch 50 --gpu 0 1 2 3 --lr 2e-5 --seed ${SEED} \
---data_folder_dir fewshot --data_file train.json \
---checkpoint 10 --save \
---bert ${BERT} --K ${K} --pgd 3
+--batch 24 --board --datetime ${TIMESTAMP} --epoch 50 --gpu 2 3 --lr 2e-5 --seed ${SEED} \
+--data_folder_dir fewshot --data_file train.json --label 36 \
+--checkpoint 25 --save \
+--bert ${BERT} --dropout 0.4 --feature_layer 4 --freeze 8 \
+--K ${K} --split_test_ratio 0.2
+# --ema 0.999 --fgm --pgd 3 --rdrop 0.4 --warmup 0.1
   
-## 测试
-python main.py \
---test \
---batch 512 --datetime ${TIMESTAMP} --gpu 0 1 2 3 --seed ${SEED} \
---data_folder_dir fewshot --data_file train.json \
---bert ${BERT} --K ${K}
+# ## 测试
+# python main.py \
+# --test \
+# --batch 512 --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
+# --data_folder_dir fewshot --data_file train.json --label 36 \
+# --bert ${BERT} --dropout 0.4 --feature_layer 4 \
+# --K ${K}
 
 # ## 推理
 # python main.py \
 # --predict \
 # --batch 512  --datetime ${TIMESTAMP} --gpu 2 3 --seed ${SEED} \
-# --data_folder_dir fewshot --data_file testA.json \
-# --bert ${BERT} --K ${K}
+# --data_folder_dir fewshot --data_file testA.json --label 36 \
+# --bert ${BERT} --dropout 0.4 --feature_layer 4 \
+# --K ${K}
 
 ## 打包
 # python pack.py --datetime 2022_10_13_10_59_28 --score 0.0001245

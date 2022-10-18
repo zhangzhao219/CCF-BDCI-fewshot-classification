@@ -10,12 +10,12 @@ import numpy as np
 import pandas as pd
 
 import torch.nn as nn
-from torch.utils.data import DataLoader,Subset,random_split
+from torch.utils.data import DataLoader,Subset
 
 from tensorboardX import SummaryWriter
 
 from sklearn.metrics import precision_score,recall_score,f1_score
-from sklearn.model_selection import KFold,StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
@@ -34,13 +34,14 @@ parser.add_argument('--predict_with_score', action='store_true', default=False, 
 parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
 parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
 parser.add_argument('--datetime', type=str, required=True, help='Get Time Stamp')
-parser.add_argument('--epoch', type=int, default=5, help='Training epochs')
+parser.add_argument('--epoch', type=int, default=50, help='Training epochs')
 parser.add_argument('--gpu', type=str, nargs='+', help='Use GPU')
-parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
+parser.add_argument('--lr', type=float, default=2e-5, help='learning rate')
 parser.add_argument('--seed',type=int, default=42, help='Random Seed')
 
 parser.add_argument('--data_folder_dir', type=str, required=True, help='Data Folder Location')
 parser.add_argument('--data_file', type=str, help='Data Filename')
+parser.add_argument('--label', type=int, default=36, help='label num')
 
 parser.add_argument('--checkpoint', type=int, default=0, help='Use checkpoint')
 parser.add_argument('--load', action='store_true', help='load from checkpoint')
@@ -48,12 +49,17 @@ parser.add_argument('--load_pt', type=str, help='load from checkpoint')
 parser.add_argument('--save', action='store_true', help='Whether to save model')
 
 parser.add_argument('--bert', type=str, required=True, help='Choose Bert')
-parser.add_argument('--K', type=int, default=1, help='K-fold')
-parser.add_argument('--warmup', type=float, default=0.1, help='warm up ratio')
-parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
+parser.add_argument('--dropout', type=float, default=0.4, help='dropout ratio')
+parser.add_argument('--feature_layer', type=int, default=4, help='feature layers num')
+parser.add_argument('--freeze', type=int, default=8, help='freeze bert parameters')
+
 parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
-parser.add_argument('--fgm', type=float, default=0.0, help='FGM epsilon')
+parser.add_argument('--fgm', action='store_true', help='FGM attack')
+parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
+parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
+parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
 args = parser.parse_args()
 
@@ -103,23 +109,6 @@ def read_data(data_path):
     logging.info('Read data: ' + data_path)
     return data
 
-# # () build vocabulary
-# def build_vocab(data):
-#     word_list = []
-#     # find all words
-#     for index,column in data.iterrows():
-#         for word in column['sentence'].split():
-#             word_list.append(word)
-#     # remove duplicate words
-#     word_list = sorted(list(set(word_list)))
-#     # {word : index}
-#     word_dict = {word:index+1 for index,word in enumerate(word_list)}
-#     word_dict['<PAD>'] = 0
-#     word_dict['<UNK>'] = len(word_dict)
-#     id_to_word_dict = {i:j for j,i in word_dict.items()}
-#     logging.info('Build Vocab')
-#     return word_dict,id_to_word_dict
-
 # evaluate method
 def calculateMetrics(label,prediction):
     P = round(precision_score(label,prediction,average='macro',zero_division=0),6)
@@ -127,46 +116,57 @@ def calculateMetrics(label,prediction):
     F1 = round(f1_score(label,prediction,average='macro',zero_division=0),6)
     return {'F1score':F1,'Precision':P,'Recall':R}
 
-# def train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch):
-def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch,ema):
-    # set train mode
-    model.train()
-
-    if args.fgm != 0.0:
-        fgm = FGM(model,args.fgm)
-    if args.pgd != 0:
-        pgd = PGD(model)
-    
-    loss = 0
+def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, epoch, ema):
 
     # define tqdm
     epoch_iterator = tqdm.tqdm(train_loader, desc="Iteration", total=len(train_loader))
     # set description of tqdm
     epoch_iterator.set_description(f'Train-{epoch}')
 
-    for step, (input_id,label) in enumerate(epoch_iterator):
-        # print(sentence,label)
-        mask = input_id['attention_mask']
-        input_id = input_id['input_ids'].squeeze(1)
+    # set train mode
+    model.train()
+
+    # fgm
+    if args.fgm:
+        fgm = FGM(model)
+
+    # pgd
+    if args.pgd != 0:
+        pgd = PGD(model)
+    
+    loss = 0
+
+    for step, ((input_ids, token_type_ids, attention_mask), label) in enumerate(epoch_iterator):
+
+        input_ids = input_ids.squeeze(1)
+        token_type_ids = token_type_ids.squeeze(1)
+        attention_mask = attention_mask.squeeze(1)
+
         if args.gpu:
             model = model.cuda()
-            mask = mask.cuda()
-            input_id = input_id.cuda()
+            input_ids = input_ids.cuda()
+            token_type_ids = token_type_ids.cuda()
+            attention_mask = attention_mask.cuda()
             label = label.cuda()
-        output = model(input_id, mask)
+
+        output = model(input_ids, token_type_ids, attention_mask)
+
+        # rdrop
         if args.rdrop != 0.0:
-            output_rdrop = model(input_id, mask)
+            output_rdrop = model(input_ids, token_type_ids, attention_mask)
             loss_single = criterion(output, output_rdrop, label, args.rdrop)
         else:
             loss_single = criterion(output, label)
+
         loss += loss_single.item()
+
         # backward 
         loss_single.backward()
 
         # FGM attack
-        if args.fgm != 0.0:
+        if args.fgm:
             fgm.attack() # attack on embedding
-            output_adv = model(input_id, mask)
+            output_adv = model(input_ids,token_type_ids,attention_mask)
             loss_adv = criterion(output_adv, label)
             loss_adv.backward()
             fgm.restore() # restore embedding
@@ -180,13 +180,19 @@ def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch,ema):
                     model.zero_grad()
                 else:
                     pgd.restore_grad()
-                output_adv = model(input_id, mask)
+                output_adv = model(input_ids, token_type_ids, attention_mask)
                 loss_adv = criterion(output_adv, label)
                 loss_adv.backward()
             pgd.restore() # 恢复embedding参数
 
         optimizer.step()
-        # scheduler.step()
+
+        if args.warmup != 0.0:
+            scheduler.step()
+
+        # 打印学习率
+        # print(optimizer.state_dict()['param_groups'][0]['lr'])
+
         if args.ema != 0.0:
             ema.update(warmup_if = epoch < args.epoch / 4)
 
@@ -200,41 +206,48 @@ def train_one_epoch(args,train_loader,model,optimizer,criterion,epoch,ema):
     return loss / args.batch, eval_one_epoch(args, train_loader, model, epoch)
 
 def eval_one_epoch(args, eval_loader, model, epoch):
-    # test
-    model.eval()
+
     epoch_iterator = tqdm.tqdm(eval_loader, desc="Iteration", total=len(eval_loader))
     # set description of tqdm
     epoch_iterator.set_description(f'Eval-{epoch}')
 
+    # test
+    model.eval()
+
     prob_all = []
     label_all = []
-    for step, (input_id,label) in enumerate(epoch_iterator):
+    for step, ((input_ids, token_type_ids, attention_mask), label) in enumerate(epoch_iterator):
 
-        mask = input_id['attention_mask']
-        input_id = input_id['input_ids'].squeeze(1)
+        input_ids = input_ids.squeeze(1)
+        token_type_ids = token_type_ids.squeeze(1)
+        attention_mask = attention_mask.squeeze(1)
+
         if args.gpu:
             model = model.cuda()
-            mask = mask.cuda()
-            input_id = input_id.cuda()
+            input_ids = input_ids.cuda()
+            token_type_ids = token_type_ids.cuda()
+            attention_mask = attention_mask.cuda()
+
         with torch.no_grad():
-            output = model(input_id,mask)
+            output = model(input_ids, token_type_ids, attention_mask)
         if args.gpu:
             output = output.cpu()
         predict = output.argmax(axis=1).numpy().tolist()
         prob_all.extend(predict)
         label_all.extend(label)
+
         epoch_iterator.update(1)
     metrics = calculateMetrics(label_all,prob_all)
     return metrics
 
 
-def foldData(kfold,all_dataset,dataset_len,K,index):
+def foldData(kfold,all_dataset,K,index,ratio):
     if K >= 2:
-        train_index,eval_index = list(kfold.split(all_dataset.texts, all_dataset.labels))[index]
+        train_index,eval_index = list(kfold.split(all_dataset, all_dataset.labels))[index]
         train_dataset = Subset(all_dataset, train_index)
         eval_dataset = Subset(all_dataset, eval_index)
     else:
-        train_dataset, eval_dataset = random_split(all_dataset, [round(dataset_len*0.8), dataset_len-round(dataset_len*0.8)])   
+        train_dataset, _, eval_dataset, _ = train_test_split(all_dataset, all_dataset.labels, test_size=ratio, random_state=args.seed, stratify = all_dataset.labels)   
     return train_dataset,eval_dataset
         
 # train process
@@ -249,7 +262,8 @@ def train(args,data):
     # cross validation or not (if not, args.K=1 one time)
     for n_fold in range(args.K):
         # build model
-        model = BertModel(bert=args.bert,n_labels=36)
+        model = BertModel(args.bert, args.label, args.feature_layer, args.dropout)
+
         # use GPU
         if args.gpu:
             model = model.cuda()
@@ -276,15 +290,42 @@ def train(args,data):
             criterion = RDrop()
         else:
             criterion = nn.CrossEntropyLoss()
-        # no_decay = ['bias', 'LayerNorm.weight']
-        # optimizer_grouped_parameters = [
-        #     {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
-        #     {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
-        # ]
-        # optimizer = AdamW(optimizer_grouped_parameters, lr=args.lr)
-        optimizer = AdamW(model.parameters(), lr=args.lr,correct_bias=True)
+
+        # 冻结除了feature_layer外其他的参数
+        if args.freeze != 0:
+            # for name, param in model.named_parameters():
+            #     print(name,param.size())
+            unfreeze_layers = ['layer.'+str(i) for i in range(args.freeze,12)]
+            unfreeze_layers.extend(['bert.pooler','linear.']) # 注意不能把自己加上去的层也锁了！！！
+            # print(unfreeze_layers)
+            for name, param in model.named_parameters():
+                param.requires_grad = False
+                for ele in unfreeze_layers:
+                    if ele in name:
+                        param.requires_grad = True
+                        break
+            # # 验证一下
+            # for name, param in model.named_parameters():
+            #     if param.requires_grad:
+            #         print(name,param.size())
+
+        # 由于在bert官方的代码中对于bias项、LayerNorm.bias、LayerNorm.weight项是免于正则化的。因此经常在bert的训练中会采用与bert原训练方式一致的做法
+        param_optimizer = list(model.named_parameters())
+        no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+        optimizer_grouped_parameters = [
+            {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+            {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+        ]
+        optimizer = AdamW(optimizer_grouped_parameters, lr=args.lr,correct_bias=True)
+        scheduler = optimizer
         # warmup
-        # scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps = round(dataset_len / args.batch) * args.epoch, num_training_steps = dataset_len * args.epoch)
+        if args.warmup != 0.0:
+            if args.K == 1:
+                num_train_optimization_steps = dataset_len / args.batch * (1-args.split_test_ratio) * args.epoch
+            else:
+                num_train_optimization_steps = dataset_len / args.batch * (args.K-1) / args.K * args.epoch
+            scheduler = get_linear_schedule_with_warmup(optimizer, int(num_train_optimization_steps*args.warmup), num_train_optimization_steps)
+
         # restore from checkpoint
         if args.load:
             logging.info(f'Load checkpoint_{args.load_pt}_{K}_epoch.pt')
@@ -292,15 +333,14 @@ def train(args,data):
             model.load_state_dict(checkpoint['model_state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         # train test split (kfold or not)
-        train_dataset,eval_dataset = foldData(kfold,all_dataset,dataset_len,args.K,n_fold)
+        train_dataset,eval_dataset = foldData(kfold,all_dataset,args.K,n_fold,args.split_test_ratio)
         # loops
         for epoch in range(args.epoch):
             # dataset loader
             train_loader = DataLoader(train_dataset,batch_size=args.batch,shuffle=True,drop_last=False)
             eval_loader = DataLoader(eval_dataset,batch_size=args.batch*8,shuffle=False,drop_last=False)
             # train and evaluate train dataset
-            # loss,metrics = train_one_epoch(args,train_loader,model,optimizer,scheduler,criterion,epoch+1)
-            loss,metrics_train = train_one_epoch(args, train_loader, model, optimizer, criterion, epoch+1, ema)
+            loss,metrics_train = train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, epoch+1, ema)
             logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics_train}')
             if args.ema != 0.0:
                 ema.apply_shadow()
@@ -318,11 +358,13 @@ def train(args,data):
                 best_metrics_list[n_fold] = metrics[list(metrics.keys())[0]]
             # tensorboard
             if args.board:
+                if args.warmup != 0.0:
+                    writer.add_scalar(f'K_{K}/Learning_rate', optimizer.state_dict()['param_groups'][0]['lr'], epoch+1)
                 writer.add_scalar(f'K_{K}/Loss', loss, epoch+1)
                 for i in list(metrics.keys()):
                     writer.add_scalars(f'K_{K}/{i}', {'Train_'+i:metrics_train[i],'Eval_'+i:metrics[i]}, epoch+1)
-            # if args.ema != 0.0:
-            #     ema.restore()
+            if args.ema != 0.0:
+                ema.restore()
         # clear gpu parameters
         if args.gpu:
             torch.cuda.empty_cache()
@@ -343,7 +385,7 @@ def test(args,data,mode):
         if args.K >= 2:
             K += 1
         # build model
-        model = BertModel(bert=args.bert,n_labels=36)
+        model = model = BertModel(args.bert, args.label, args.feature_layer, args.dropout)
         # use GPU
         if args.gpu:
             model = model.cuda()
@@ -359,15 +401,20 @@ def test(args,data,mode):
         # set description of tqdm
         epoch_iterator.set_description('Test')
 
-        for step, (input_id,label) in enumerate(epoch_iterator):
-            mask = input_id['attention_mask']
-            input_id = input_id['input_ids'].squeeze(1)
+        for step, ((input_ids, token_type_ids, attention_mask), label) in enumerate(epoch_iterator):
+
+            input_ids = input_ids.squeeze(1)
+            token_type_ids = token_type_ids.squeeze(1)
+            attention_mask = attention_mask.squeeze(1)
+
             if args.gpu:
                 model = model.cuda()
-                mask = mask.cuda()
-                input_id = input_id.cuda()
+                input_ids = input_ids.cuda()
+                token_type_ids = token_type_ids.cuda()
+                attention_mask = attention_mask.cuda()
+                label = label.cuda()
             with torch.no_grad():
-                output = model(input_id,mask)
+                output = model(input_ids, token_type_ids, attention_mask)
             if args.gpu:
                 output = output.cpu()
             output = nn.Softmax(dim=-1)(output).numpy()
@@ -382,6 +429,7 @@ def test(args,data,mode):
             # calculate single model metrics
             metrics = calculateMetrics(labellist,predict_result[n_fold].argmax(axis=1).tolist())
             logging.info(f'Metrics for best_{K}.pt : {metrics}')
+
     if mode == 1:
         return predict_result
     # calculate final metrics
@@ -403,9 +451,9 @@ def predict(args,data):
     logging.info('Predict Finished!')
 
 if __name__ == '__main__':
+
     # set seed
     set_seed(args.seed)
-    # print(args.batch, args.epoch, args.eval, args.gpu, args.seed, args.train)
 
     MODEL_PATH = './models/' + TIMESTAMP + '/'
     DATA_PATH = './data/'
@@ -415,18 +463,6 @@ if __name__ == '__main__':
 
     # read data
     DATA = read_data(DATA_PATH)
-    
-    # build vocab
-    # word_dict,id_to_word = build_vocab(pd.concat([train_data, test_data], axis=0))
-    # word_dict = build_vocab(train_data)
-    # vocab_size = len(word_dict)
-    # print(word_dict)
-
-    # config
-    # n_step = 3 # number of cells(= number of Step)
-    # embedding_dim = 768 # embedding size
-    # n_hidden = 768  # number of hidden units in one cell
-    # num_classes = 36  # 0 or 1
     
     if args.train:
         train(args,DATA)
