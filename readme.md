@@ -130,13 +130,13 @@ python add_pseudo_labels.py \
 
 探究不同因素对不同模型的影响
 
-基本配置：batch=12，epoch=40, gpu=2,3, lr=2e-5, seed=42, split_test_ratio=0.2, dropout=0.3
+基本配置：batch=12，epoch=40 (early stop), gpu=2,3, lr=2e-5, seed=42, split_test_ratio=0.2, dropout=0.3
 
 数据采用expand_train.json
 
-| 模型                    | baseline            | rdrop=0.1 | rdrop=0.5 | rdrop=1.0 | ema=0.99 | ema=0.999 | pgd=3 | warmup=0.1 | fgm |
-| ----------------------- | ------------------- | --------- | --------- | --------- | -------- | --------- | ----- | ---------- | --- |
-| mengzi-bert-base        |                     |           |           |           |          |           |       |            |     |
-| ernie-3.0-base-zh       |                     |           |           |           |          |           |       |            |     |
-| chinese-macbert-base    | 2022_10_19_09_04_25 |           |           |           |          |           |       |            |     |
-| chinese-roberta-wwm-ext |                     |           |           |           |          |           |       |            |     |
+| 模型                    | baseline                                                                     | rdrop=0.1 | rdrop=0.5 | rdrop=1.0 | ema=0.999 | pgd=3 | warmup=0.1 | fgm                 |
+| ----------------------- | ---------------------------------------------------------------------------- | --------- | --------- | --------- | --------- | ----- | ---------- | ------------------- |
+| mengzi-bert-base        |                                                                              |           |           |           |           |       |            |                     |
+| ernie-3.0-base-zh       |                                                                              |           |           |           |           |       |            |                     |
+| chinese-macbert-base    | 2022_10_19_09_04_25<br />Epoch =11 0.93218<br />0.973964<br />0.58566511183 |           |           |           |           |       |            | 2022_10_19_14_51_36 |
+| chinese-roberta-wwm-ext |                                                                              |           |           |           |           |       |            |                     |

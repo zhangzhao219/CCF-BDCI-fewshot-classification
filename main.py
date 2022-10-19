@@ -8,6 +8,7 @@ import argparse
 
 import numpy as np
 import pandas as pd
+from collections import deque
 
 import torch.nn as nn
 from torch.utils.data import DataLoader,Subset
@@ -38,6 +39,7 @@ parser.add_argument('--epoch', type=int, default=50, help='Training epochs')
 parser.add_argument('--gpu', type=str, nargs='+', help='Use GPU')
 parser.add_argument('--lr', type=float, default=2e-5, help='learning rate')
 parser.add_argument('--seed',type=int, default=42, help='Random Seed')
+parser.add_argument('--early_stop',type=int, default=10, help='Early Stop Epoch')
 
 parser.add_argument('--data_folder_dir', type=str, required=True, help='Data Folder Location')
 parser.add_argument('--data_file', type=str, help='Data Filename')
@@ -334,6 +336,8 @@ def train(args,data):
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         # train test split (kfold or not)
         train_dataset,eval_dataset = foldData(kfold,all_dataset,args.K,n_fold,args.split_test_ratio)
+        # early stop
+        early_stop_sign = deque(maxlen=args.early_stop)
         # loops
         for epoch in range(args.epoch):
             # dataset loader
@@ -347,15 +351,25 @@ def train(args,data):
             # evaluate eval dataset
             metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
             logging.info(f'Eval Epoch = {epoch+1} Metrics:{metrics}')
+            main_metric = metrics[list(metrics.keys())[0]]
             # save model
             if args.checkpoint != 0 and epoch % args.checkpoint == 0:
                 torch.save({'epoch': epoch,'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),'loss': loss}, MODEL_PATH + 'checkpoint_{}_{}_epoch.pt'.format(epoch,K))
                 logging.info(f'checkpoint_{epoch}_{K}_epoch.pt Saved!')
-            # save better model
-            if args.save and metrics[list(metrics.keys())[0]] > best_metrics_list[n_fold]:
-                torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
-                logging.info(f'Test metrics:{metrics[list(metrics.keys())[0]]} > max_metric! Saved!')
-                best_metrics_list[n_fold] = metrics[list(metrics.keys())[0]]
+            # save better model and early_stop
+            if main_metric > best_metrics_list[n_fold]:
+                logging.info(f'Test metrics:{main_metric} > max_metric!')
+                best_metrics_list[n_fold] = main_metric
+                early_stop_sign.append(1)
+                if args.save:
+                    torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                    logging.info(f'Best Model Saved!')
+            else:
+                early_stop_sign.append(0)
+                if sum(early_stop_sign) == args.early_stop:
+                    logging.info(f'The Effect of last {args.early_stop} epochs has not improved! Early Stop!')
+                    logging.info(f'Best Metric: {best_metrics_list[n_fold]}')
+                    break
             # tensorboard
             if args.board:
                 if args.warmup != 0.0:
@@ -427,13 +441,13 @@ def test(args,data,mode):
             epoch_iterator.update(1)
         if mode == 0:
             # calculate single model metrics
-            metrics = calculateMetrics(labellist,predict_result[n_fold].argmax(axis=1).tolist())
+            metrics = calculateMetrics(labellist, predict_result[n_fold].argmax(axis=1).tolist())
             logging.info(f'Metrics for best_{K}.pt : {metrics}')
 
     if mode == 1:
         return predict_result
     # calculate final metrics
-    metrics = calculateMetrics(labellist,predict_result.mean(axis=0).argmax(axis=1).tolist())
+    metrics = calculateMetrics(labellist, predict_result.mean(axis=0).argmax(axis=1).tolist())
     logging.info(f'Metrics for all model : {metrics}')
 
 # predict unlabeled data
