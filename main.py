@@ -247,7 +247,7 @@ def foldData(kfold,all_dataset,K,index,ratio):
         train_dataset = Subset(all_dataset, train_index)
         eval_dataset = Subset(all_dataset, eval_index)
     else:
-        train_dataset, eval_dataset, _, _ = train_test_split(all_dataset, all_dataset.labels, test_size=ratio, random_state=args.seed, stratify = all_dataset.labels)
+        train_dataset, eval_dataset, a, b = train_test_split(all_dataset, all_dataset.labels, test_size=ratio, random_state=args.seed, stratify = all_dataset.labels)
     return train_dataset,eval_dataset
         
 # train process
