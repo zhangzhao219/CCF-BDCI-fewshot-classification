@@ -403,7 +403,7 @@ def test(args,data,mode):
         # use GPU
         if args.gpu:
             model = model.cuda()
-            if len(args.gpu) >= 2:
+            if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
                 model= nn.DataParallel(model)
         # load best model
         model.load_state_dict(torch.load(MODEL_PATH + 'best_{}.pt'.format(K)))
@@ -461,7 +461,7 @@ def predict(args,data):
     else:
         data['label'] = predict_result
         data['score'] = predict_score
-        data[['id','label','score']].to_csv('result_'+TIMESTAMP+'.csv',index=None)
+        data[['id','label','score']].to_csv('result_score_'+TIMESTAMP+'.csv',index=None)
     logging.info('Predict Finished!')
 
 if __name__ == '__main__':
@@ -482,5 +482,5 @@ if __name__ == '__main__':
         train(args,DATA)
     if args.test:
         test(args,DATA,0)
-    if args.predict:
+    if args.predict or args.predict_with_score:
         predict(args,DATA)
