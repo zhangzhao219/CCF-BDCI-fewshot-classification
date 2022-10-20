@@ -360,12 +360,12 @@ def train(args,data):
             if main_metric > best_metrics_list[n_fold]:
                 logging.info(f'Test metrics:{main_metric} > max_metric!')
                 best_metrics_list[n_fold] = main_metric
-                early_stop_sign.append(1)
+                early_stop_sign.append(0)
                 if args.save:
                     torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
                     logging.info(f'Best Model Saved!')
             else:
-                early_stop_sign.append(0)
+                early_stop_sign.append(1)
                 if sum(early_stop_sign) == args.early_stop:
                     logging.info(f'The Effect of last {args.early_stop} epochs has not improved! Early Stop!')
                     logging.info(f'Best Metric: {best_metrics_list[n_fold]}')
