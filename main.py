@@ -21,7 +21,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from model import BertModel,RDrop,EMA,PGD,FGM,getTokenizer
+from trick import RDrop,EMA,PGD,FGM
 from dataset import LoadData
 from log import config_logging
 
@@ -67,6 +67,13 @@ args = parser.parse_args()
 
 TIMESTAMP = args.datetime
 
+if args.bert.split('/')[-1] == "roberta-base":
+    from roberta_model import PretrainedModel,getTokenizer
+elif args.bert.split('/')[-1] == "xlnet-base-cased":
+    from xlnet_model import PretrainedModel,getTokenizer
+else:
+    from auto_bert_model import PretrainedModel,getTokenizer
+
 # log
 config_logging("log_" + TIMESTAMP)
 logging.info('Log is ready!')
@@ -102,7 +109,8 @@ def read_json(input_file):
 # () read data and process
 def read_data(data_path):
     df = pd.DataFrame.from_records(read_json(data_path))
-    df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，由“{x.assignee}”公司申请，详细说明如下：{x.abstract}",axis=1)
+    # df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，由“{x.assignee}”公司申请，详细说明如下：{x.abstract}",axis=1)
+    df['input_string'] = df.apply(lambda x: f"The name of the patent is {x.title}, applied for by {x.assignee}, and the details are as follows: {x.abstract}",axis=1)
     if len(df.columns) == 5:
         df['label_id'] = 0
     data = df[['id','input_string','label_id']]
@@ -264,7 +272,7 @@ def train(args,data):
     # cross validation or not (if not, args.K=1 one time)
     for n_fold in range(args.K):
         # build model
-        model = BertModel(args.bert, args.label, args.feature_layer, args.dropout)
+        model = PretrainedModel(args.bert, args.label, args.feature_layer, args.dropout)
 
         # use GPU
         if args.gpu:
@@ -399,7 +407,7 @@ def test(args,data,mode):
         if args.K >= 2:
             K += 1
         # build model
-        model = model = BertModel(args.bert, args.label, args.feature_layer, args.dropout)
+        model = model = PretrainedModel(args.bert, args.label, args.feature_layer, args.dropout)
         # use GPU
         if args.gpu:
             model = model.cuda()

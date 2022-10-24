@@ -54,5 +54,3 @@ with open(os.path.join(DATA_PATH, args.data_folder_dir, 'expand_train.json'), 'w
     for item in expand_json:
         line = json.dumps(item, ensure_ascii=False)
         f.write(line + '\n')
-
-f.close()
