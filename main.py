@@ -64,6 +64,7 @@ parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
 parser.add_argument('--sce',  action='store_true', default=False, help='Whether to use symmetric cross entropy loss')
+parser.add_argument('--fl',  action='store_true', default=False, help='Whether to use focal loss combined with ce loss')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
 args = parser.parse_args()
@@ -120,6 +121,23 @@ class SCELoss(nn.Module):
         loss = self.a * ce + self.b * rce.mean()
         return loss
 
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=1, gamma=2, weight=0.20):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.cross_entropy = nn.CrossEntropyLoss()
+        self.weight = weight
+
+    def forward(self, inputs, targets):
+        ce = self.cross_entropy(inputs, targets)
+        onehot_targets = torch.nn.functional.one_hot(targets, num_classes=36)
+        BCE_loss = F.binary_cross_entropy_with_logits(inputs, onehot_targets.float(), reduce=False)
+        pt = torch.exp(-BCE_loss)
+        FL_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
+
+        return self.weight * torch.mean(FL_loss) + ce    
+    
 def read_json(input_file):
     """Reads a json list file."""
     with open(input_file, "r") as f:
@@ -321,6 +339,8 @@ def train(args,data):
             criterion = RDrop()
         elif args.sce:
             criterion = SCELoss()
+        elif args.fl:
+            criterion = FocalLoss()
         else:
             criterion = nn.CrossEntropyLoss()
 
