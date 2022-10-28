@@ -11,6 +11,7 @@ import pandas as pd
 from collections import deque
 
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader,Subset
 
 from tensorboardX import SummaryWriter
@@ -62,6 +63,7 @@ parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+parser.add_argument('--sce',  action='store_true', default=False, help='Whether to use symmetric cross entropy loss')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
 args = parser.parse_args()
@@ -99,6 +101,24 @@ def set_seed(seed):
     os.environ['PYTHONHASHSEED'] = str(seed)
     logging.info('Seed:' + str(seed))
 
+class SCELoss(nn.Module):
+    def __init__(self, num_classes=36, a=1, b=0.1):
+        super(SCELoss, self).__init__()
+        self.num_classes = num_classes
+        self.a = a
+        self.b = b
+        self.cross_entropy = nn.CrossEntropyLoss()
+
+    def forward(self, pred, labels):
+        ce = self.cross_entropy(pred, labels)
+        pred = F.softmax(pred, dim=1)
+        pred = torch.clamp(pred, min=1e-4, max=1.0)
+        label_one_hot = F.one_hot(labels, self.num_classes).float().to(pred.device)
+        label_one_hot = torch.clamp(label_one_hot, min=1e-4, max=1.0)
+        rce = (-1 * torch.sum(pred * torch.log(label_one_hot), dim=1))
+
+        loss = self.a * ce + self.b * rce.mean()
+        return loss
 
 def read_json(input_file):
     """Reads a json list file."""
@@ -299,6 +319,8 @@ def train(args,data):
         # whether to use RDrop
         if args.rdrop != 0.0:
             criterion = RDrop()
+        elif args.sce:
+            criterion = SCELoss()
         else:
             criterion = nn.CrossEntropyLoss()
 
