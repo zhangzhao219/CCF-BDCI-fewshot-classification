@@ -14,7 +14,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader,Subset
 
 from tensorboardX import SummaryWriter
-
+from torch.optim.swa_utils import AveragedModel, SWALR
 from sklearn.metrics import precision_score,recall_score,f1_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
@@ -56,6 +56,7 @@ parser.add_argument('--feature_layer', type=int, default=4, help='feature layers
 parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameters')
 
 parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
+parser.add_argument('--swa', action='store_true', help='swa ensemble')
 parser.add_argument('--fgm', action='store_true', help='FGM attack')
 parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
@@ -328,6 +329,9 @@ def train(args,data):
         ]
         optimizer = AdamW(optimizer_grouped_parameters, lr=args.lr,correct_bias=True)
         scheduler = optimizer
+        if args.swa:
+            swa_model = AveragedModel(model).to('cuda')
+            swa_scheduler = SWALR(optimizer, swa_lr=args.lr)
         # warmup
         if args.warmup != 0.0:
             if args.K == 1:
@@ -354,10 +358,16 @@ def train(args,data):
             # train and evaluate train dataset
             loss,metrics_train = train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, epoch+1, ema)
             logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics_train}')
+            if args.swa:
+                swa_model.update_parameters(model)
+                swa_scheduler.step()
             if args.ema != 0.0:
                 ema.apply_shadow()
             # evaluate eval dataset
-            metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
+            if args.swa:
+                metrics = eval_one_epoch(args,eval_loader,swa_model,epoch+1)
+            else:
+                metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
             logging.info(f'Eval Epoch = {epoch+1} Metrics:{metrics}')
             main_metric = metrics[list(metrics.keys())[0]]
             # save model
@@ -370,7 +380,11 @@ def train(args,data):
                 best_metrics_list[n_fold] = main_metric
                 early_stop_sign.append(0)
                 if args.save:
-                    torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                    if args.swa:
+                        torch.optim.swa_utils.update_bn(train_loader, swa_model, device='cuda')
+                        torch.save(swa_model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                    else:
+                        torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
                     logging.info(f'Best Model Saved!')
             else:
                 early_stop_sign.append(1)
@@ -388,6 +402,8 @@ def train(args,data):
             if args.ema != 0.0:
                 ema.restore()
         # clear gpu parameters
+        if args.swa:
+            torch.save(swa_model.state_dict(), MODEL_PATH + 'last_{}.pt'.format(K))
         if args.gpu:
             torch.cuda.empty_cache()
 
