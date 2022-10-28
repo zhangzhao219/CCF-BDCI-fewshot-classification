@@ -65,6 +65,7 @@ parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+parser.add_argument('--mixif', action='store_true', help='mixup training')
 parser.add_argument('--sce',  action='store_true', default=False, help='Whether to use symmetric cross entropy loss')
 parser.add_argument('--fl',  action='store_true', default=False, help='Whether to use focal loss combined with ce loss')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
@@ -139,7 +140,18 @@ class FocalLoss(nn.Module):
         FL_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
 
         return self.weight * torch.mean(FL_loss) + ce    
-    
+ 
+def mixup_cross_entropy(pred, y_a, y_b, lam):
+    cls_criterion = nn.CrossEntropyLoss()
+    return lam * cls_criterion(pred, y_a) + (1 - lam) * cls_criterion(pred, y_b)
+
+def get_perm(x):
+    batch_size = x.size(0)
+    index = torch.randperm(batch_size)
+    if args.gpu:
+        index = torch.randperm(batch_size).cuda()
+    return index
+
 def read_json(input_file):
     """Reads a json list file."""
     with open(input_file, "r") as f:
@@ -202,12 +214,24 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
             attention_mask = attention_mask.cuda()
             label = label.cuda()
 
-        output = model(input_ids, token_type_ids, attention_mask)
+        if args.mixif:
+            lam = np.random.beta(0.20, 0.20)
+            index = get_perm(input_ids)
+            input_ids_perm = input_ids[index]
+            label_perm = label[index]
+            att_perm = attention_mask[index]
+        
+        if not args.mixif:
+            output = model(input_ids, token_type_ids, attention_mask)
+        else:
+            output = model.forward_mix_encoder(input_ids, attention_mask, input_ids_perm, att_perm, token_type_ids, lam)
 
         # rdrop
         if args.rdrop != 0.0:
             output_rdrop = model(input_ids, token_type_ids, attention_mask)
             loss_single = criterion(output, output_rdrop, label, args.rdrop)
+        elif args.mixif:
+            loss_single = criterion(output, label, label_perm, lam)
         else:
             loss_single = criterion(output, label)
 
@@ -351,6 +375,8 @@ def train(args,data):
             criterion = SCELoss()
         elif args.fl:
             criterion = FocalLoss()
+        elif args.mixif:
+            criterion = mixup_cross_entropy
         else:
             criterion = nn.CrossEntropyLoss()
 
