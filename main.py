@@ -22,7 +22,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from trick import RDrop,EMA,PGD,FGM
+from trick import RDrop,EMA,PGD,FGM,AWP
 from dataset import LoadData
 from log import config_logging
 
@@ -59,6 +59,8 @@ parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameter
 parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
 parser.add_argument('--swa', action='store_true', help='swa ensemble')
 parser.add_argument('--fgm', action='store_true', help='FGM attack')
+parser.add_argument('--awp', action='store_true', help='AWP attack')
+parser.add_argument('--awp_start_epoch', type=int, default=1, help='AWP attack start epoch')
 parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
@@ -178,7 +180,9 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
     # fgm
     if args.fgm:
         fgm = FGM(model)
-
+    # awp
+    if args.awp:
+        awp = AWP(model, start_epoch = args.awp_start_epoch)
     # pgd
     if args.pgd != 0:
         pgd = PGD(model)
@@ -220,6 +224,12 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
             loss_adv.backward()
             fgm.restore() # restore embedding
 
+        # awp attack    
+        if args.awp and epoch >= args.awp_start_epoch:
+            adv_loss = awp.attack_backward(input_ids, token_type_ids, attention_mask, epoch, label, criterion)
+            adv_loss.backward()
+            awp.restore() 
+    
         # PGD attack
         if args.pgd != 0:
             pgd.backup_grad()
