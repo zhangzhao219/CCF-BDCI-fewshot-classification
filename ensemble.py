@@ -89,7 +89,7 @@ def predict_single(args, data, model_config, index):
         model = nn.DataParallel(model)
 
     # load best model
-    model.load_state_dict(torch.load(os.path.join(args.model_folder_path, model_config['name'])))
+    model.load_state_dict(torch.load(os.path.join(args.model_folder_path, model_config['name'])), not model_config['swa'])
     logging.info(f"{model_config['name']} Loaded!")
 
     # set eval mode

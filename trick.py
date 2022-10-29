@@ -186,3 +186,39 @@ class AWP:
                 param.data = self.backup[name]
         self.backup = {}
         self.backup_eps = {}
+
+class SCELoss(nn.Module):
+    def __init__(self, num_classes=36, a=1, b=0.1):
+        super(SCELoss, self).__init__()
+        self.num_classes = num_classes
+        self.a = a
+        self.b = b
+        self.cross_entropy = nn.CrossEntropyLoss()
+
+    def forward(self, pred, labels):
+        ce = self.cross_entropy(pred, labels)
+        pred = F.softmax(pred, dim=1)
+        pred = torch.clamp(pred, min=1e-4, max=1.0)
+        label_one_hot = F.one_hot(labels, self.num_classes).float().to(pred.device)
+        label_one_hot = torch.clamp(label_one_hot, min=1e-4, max=1.0)
+        rce = (-1 * torch.sum(pred * torch.log(label_one_hot), dim=1))
+
+        loss = self.a * ce + self.b * rce.mean()
+        return loss
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=1, gamma=2, weight=0.20):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.cross_entropy = nn.CrossEntropyLoss()
+        self.weight = weight
+
+    def forward(self, inputs, targets):
+        ce = self.cross_entropy(inputs, targets)
+        onehot_targets = torch.nn.functional.one_hot(targets, num_classes=36)
+        BCE_loss = F.binary_cross_entropy_with_logits(inputs, onehot_targets.float(), reduce=False)
+        pt = torch.exp(-BCE_loss)
+        FL_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
+
+        return self.weight * torch.mean(FL_loss) + ce  

@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
 
 from transformers import AutoModel, AutoConfig, AutoTokenizer
 
@@ -42,3 +41,12 @@ class PretrainedModel(nn.Module):
         output = (output_last + output_first) / 2
         # output = torch.mean(outputs['last_hidden_state'], 1)
         return self.linear(self.dropout(output))
+
+    def forward_mix_encoder(self, x1, att1, x2, att2, token_type_ids, lam):
+        outputs1 = self.bert(input_ids=x1, token_type_ids=token_type_ids, attention_mask=att1)
+        outputs2 = self.bert(input_ids=x2, token_type_ids=token_type_ids, attention_mask=att2)
+        output1 = torch.mean(outputs1['last_hidden_state'], 1)
+        output2 = torch.mean(outputs2['last_hidden_state'], 1)
+        pooled_output = lam * output1 + (1.0 - lam) * output2
+        y = self.linear(self.dropout(pooled_output))
+        return y

@@ -5,24 +5,24 @@ import torch
 import random
 import logging
 import argparse
+import importlib
 
 import numpy as np
 import pandas as pd
 from collections import deque
 
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader,Subset
+from torch.utils.data import DataLoader, Subset
 
 from tensorboardX import SummaryWriter
 from torch.optim.swa_utils import AveragedModel, SWALR
-from sklearn.metrics import precision_score,recall_score,f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from trick import RDrop,EMA,PGD,FGM,AWP
+from trick import RDrop, EMA ,PGD, FGM, AWP, FocalLoss, SCELoss
 from dataset import LoadData
 from log import config_logging
 
@@ -31,7 +31,7 @@ parser = argparse.ArgumentParser(description='Pytorch NLP')
 parser.add_argument('--train', action='store_true', help='Whether to train')
 parser.add_argument('--test', action='store_true', help='Whether to test')
 parser.add_argument('--predict', action='store_true', help='Whether to predict')
-parser.add_argument('--predict_with_score', action='store_true', default=False, help='Whether to predict')
+parser.add_argument('--predict_with_score', action='store_true', default=False, help='Whether to predict and output score')
 
 parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
 parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
@@ -55,42 +55,29 @@ parser.add_argument('--bert', type=str, required=True, help='Choose Bert')
 parser.add_argument('--dropout', type=float, default=0.4, help='dropout ratio')
 parser.add_argument('--feature_layer', type=int, default=4, help='feature layers num')
 parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameters')
-
-parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
-parser.add_argument('--swa', action='store_true', help='swa ensemble')
-parser.add_argument('--fgm', action='store_true', help='FGM attack')
-parser.add_argument('--awp', action='store_true', help='AWP attack')
-parser.add_argument('--awp_start_epoch', type=int, default=1, help='AWP attack start epoch')
-parser.add_argument('--K', type=int, default=1, help='K-fold')
-parser.add_argument('--pgd', type=int, default=0, help='PGD K')
-parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
-parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
-parser.add_argument('--mixif', action='store_true', help='mixup training')
-parser.add_argument('--sce',  action='store_true', default=False, help='Whether to use symmetric cross entropy loss')
-parser.add_argument('--fl',  action='store_true', default=False, help='Whether to use focal loss combined with ce loss')
-parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
+parser.add_argument('--model', type=str, required=True, help='Model type')
 
 parser.add_argument('--en', action='store_true', help='whether to use English model')
-parser.add_argument('--type', type=int, required=True, help='Model type')
+
+parser.add_argument('--K', type=int, default=1, help='K-fold')
+parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+
+parser.add_argument('--awp', type=int, default=-1, help='AWP attack start epoch')
+parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
+parser.add_argument('--fgm', action='store_true', help='FGM attack')
+parser.add_argument('--fl',  action='store_true', default=False, help='Whether to use focal loss combined with ce loss')
+parser.add_argument('--mixif', action='store_true', help='mixup training')
+parser.add_argument('--pgd', type=int, default=0, help='PGD K')
+parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
+parser.add_argument('--sce',  action='store_true', help='Whether to use symmetric cross entropy loss')
+parser.add_argument('--swa', action='store_true', help='swa ensemble')
+parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
 args = parser.parse_args()
 
-# different models
-# last_hidden_size + 2 MLP
-if args.type == 1:
-    from model1 import PretrainedModel,getTokenizer
-# last four layers mean
-elif args.type == 2:
-    from model2 import PretrainedModel,getTokenizer
-# pooler output
-elif args.type == 3:
-    from model3 import PretrainedModel,getTokenizer
-# pooler output + 2 MLP
-elif args.type == 4:
-    from model4 import PretrainedModel,getTokenizer
-# first last four avg
-elif args.type == 5:
-    from model5 import PretrainedModel,getTokenizer
+model_structure = importlib.import_module(args.model)
+PretrainedModel = model_structure.PretrainedModel
+getTokenizer = model_structure.getTokenizer
 
 TIMESTAMP = args.datetime
 
@@ -116,43 +103,7 @@ def set_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     os.environ['PYTHONHASHSEED'] = str(seed)
-    logging.info('Seed:' + str(seed))
-
-class SCELoss(nn.Module):
-    def __init__(self, num_classes=36, a=1, b=0.1):
-        super(SCELoss, self).__init__()
-        self.num_classes = num_classes
-        self.a = a
-        self.b = b
-        self.cross_entropy = nn.CrossEntropyLoss()
-
-    def forward(self, pred, labels):
-        ce = self.cross_entropy(pred, labels)
-        pred = F.softmax(pred, dim=1)
-        pred = torch.clamp(pred, min=1e-4, max=1.0)
-        label_one_hot = F.one_hot(labels, self.num_classes).float().to(pred.device)
-        label_one_hot = torch.clamp(label_one_hot, min=1e-4, max=1.0)
-        rce = (-1 * torch.sum(pred * torch.log(label_one_hot), dim=1))
-
-        loss = self.a * ce + self.b * rce.mean()
-        return loss
-
-class FocalLoss(nn.Module):
-    def __init__(self, alpha=1, gamma=2, weight=0.20):
-        super(FocalLoss, self).__init__()
-        self.alpha = alpha
-        self.gamma = gamma
-        self.cross_entropy = nn.CrossEntropyLoss()
-        self.weight = weight
-
-    def forward(self, inputs, targets):
-        ce = self.cross_entropy(inputs, targets)
-        onehot_targets = torch.nn.functional.one_hot(targets, num_classes=36)
-        BCE_loss = F.binary_cross_entropy_with_logits(inputs, onehot_targets.float(), reduce=False)
-        pt = torch.exp(-BCE_loss)
-        FL_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
-
-        return self.weight * torch.mean(FL_loss) + ce    
+    logging.info('Seed:' + str(seed))  
  
 def mixup_cross_entropy(pred, y_a, y_b, lam):
     cls_criterion = nn.CrossEntropyLoss()
@@ -170,7 +121,6 @@ def read_json(input_file):
     with open(input_file, "r") as f:
         reader = f.readlines()
     return [json.loads(line.strip()) for line in reader]
-
 
 # () read data and process
 def read_data(data_path):
@@ -208,8 +158,8 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
     if args.fgm:
         fgm = FGM(model)
     # awp
-    if args.awp:
-        awp = AWP(model, start_epoch = args.awp_start_epoch)
+    if args.awp != -1:
+        awp = AWP(model, start_epoch = args.awp)
     # pgd
     if args.pgd != 0:
         pgd = PGD(model)
@@ -264,7 +214,7 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
             fgm.restore() # restore embedding
 
         # awp attack    
-        if args.awp and epoch >= args.awp_start_epoch:
+        if args.awp != -1 and epoch >= args.awp:
             adv_loss = awp.attack_backward(input_ids, token_type_ids, attention_mask, epoch, label, criterion)
             adv_loss.backward()
             awp.restore() 
@@ -300,7 +250,7 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
         epoch_iterator.update(1)
         # add description in the end
         epoch_iterator.set_postfix(loss=loss_single.item())
-
+    epoch_iterator.close()
     return loss / args.batch, eval_one_epoch(args, train_loader, model, epoch)
 
 def eval_one_epoch(args, eval_loader, model, epoch):
@@ -335,6 +285,7 @@ def eval_one_epoch(args, eval_loader, model, epoch):
         label_all.extend(label)
 
         epoch_iterator.update(1)
+    epoch_iterator.close()
     metrics = calculateMetrics(label_all,prob_all)
     return metrics
 
@@ -509,7 +460,7 @@ def test(args,data,mode):
     test_loader = DataLoader(test_dataset,batch_size=args.batch,shuffle=False,drop_last=False)
 
     labellist = []
-    predict_result = np.empty((args.K,test_dataset.__len__(),36))
+    predict_result = np.empty((args.K,test_dataset.__len__(),args.label))
     
     for n_fold in range(args.K):
         K = n_fold
@@ -556,11 +507,12 @@ def test(args,data,mode):
                 labellist.extend(label)
 
             epoch_iterator.update(1)
+        epoch_iterator.close()
         if mode == 0:
             # calculate single model metrics
             metrics = calculateMetrics(labellist, predict_result[n_fold].argmax(axis=1).tolist())
             logging.info(f'Metrics for best_{K}.pt : {metrics}')
-
+        
     if mode == 1:
         return predict_result
     # calculate final metrics
