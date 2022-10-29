@@ -63,16 +63,29 @@ parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
+parser.add_argument('--en', action='store_true', help='whether to use English model')
+parser.add_argument('--type', type=int, required=True, help='Model type')
+
 args = parser.parse_args()
 
-TIMESTAMP = args.datetime
+# different models
+# last_hidden_size + 2 MLP
+if args.type == 1:
+    from model1 import PretrainedModel,getTokenizer
+# last four layers mean
+elif args.type == 2:
+    from model2 import PretrainedModel,getTokenizer
+# pooler output
+elif args.type == 3:
+    from model3 import PretrainedModel,getTokenizer
+# pooler output + 2 MLP
+elif args.type == 4:
+    from model4 import PretrainedModel,getTokenizer
+# first last four avg
+elif args.type == 5:
+    from model5 import PretrainedModel,getTokenizer
 
-if args.bert.split('/')[-1] == "roberta-base":
-    from roberta_model import PretrainedModel,getTokenizer
-elif args.bert.split('/')[-1] == "xlnet-base-cased":
-    from xlnet_model import PretrainedModel,getTokenizer
-else:
-    from auto_bert_model import PretrainedModel,getTokenizer
+TIMESTAMP = args.datetime
 
 # log
 config_logging("log_" + TIMESTAMP)
@@ -109,8 +122,10 @@ def read_json(input_file):
 # () read data and process
 def read_data(data_path):
     df = pd.DataFrame.from_records(read_json(data_path))
-    # df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，由“{x.assignee}”公司申请，详细说明如下：{x.abstract}",axis=1)
-    df['input_string'] = df.apply(lambda x: f"The name of the patent is {x.title}, applied for by {x.assignee}, and the details are as follows: {x.abstract}",axis=1)
+    if args.en:
+        df['input_string'] = df.apply(lambda x: f"The name of the patent is {x.title}, applied for by {x.assignee}, and the details are as follows: {x.abstract}",axis=1)
+    else:
+        df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，由“{x.assignee}”公司申请，详细说明如下：{x.abstract}",axis=1)
     if len(df.columns) == 5:
         df['label_id'] = 0
     data = df[['id','input_string','label_id']]
@@ -407,7 +422,7 @@ def test(args,data,mode):
         if args.K >= 2:
             K += 1
         # build model
-        model = model = PretrainedModel(args.bert, args.label, args.feature_layer, args.dropout)
+        model = PretrainedModel(args.bert, args.label, args.feature_layer, args.dropout)
         # use GPU
         if args.gpu:
             model = model.cuda()
