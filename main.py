@@ -11,17 +11,18 @@ import pandas as pd
 from collections import deque
 
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader,Subset
 
 from tensorboardX import SummaryWriter
-
+from torch.optim.swa_utils import AveragedModel, SWALR
 from sklearn.metrics import precision_score,recall_score,f1_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from trick import RDrop,EMA,PGD,FGM
+from trick import RDrop,EMA,PGD,FGM,AWP
 from dataset import LoadData
 from log import config_logging
 
@@ -56,11 +57,17 @@ parser.add_argument('--feature_layer', type=int, default=4, help='feature layers
 parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameters')
 
 parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
+parser.add_argument('--swa', action='store_true', help='swa ensemble')
 parser.add_argument('--fgm', action='store_true', help='FGM attack')
+parser.add_argument('--awp', action='store_true', help='AWP attack')
+parser.add_argument('--awp_start_epoch', type=int, default=1, help='AWP attack start epoch')
 parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--pgd', type=int, default=0, help='PGD K')
 parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+parser.add_argument('--mixif', action='store_true', help='mixup training')
+parser.add_argument('--sce',  action='store_true', default=False, help='Whether to use symmetric cross entropy loss')
+parser.add_argument('--fl',  action='store_true', default=False, help='Whether to use focal loss combined with ce loss')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
 
 parser.add_argument('--en', action='store_true', help='whether to use English model')
@@ -111,6 +118,52 @@ def set_seed(seed):
     os.environ['PYTHONHASHSEED'] = str(seed)
     logging.info('Seed:' + str(seed))
 
+class SCELoss(nn.Module):
+    def __init__(self, num_classes=36, a=1, b=0.1):
+        super(SCELoss, self).__init__()
+        self.num_classes = num_classes
+        self.a = a
+        self.b = b
+        self.cross_entropy = nn.CrossEntropyLoss()
+
+    def forward(self, pred, labels):
+        ce = self.cross_entropy(pred, labels)
+        pred = F.softmax(pred, dim=1)
+        pred = torch.clamp(pred, min=1e-4, max=1.0)
+        label_one_hot = F.one_hot(labels, self.num_classes).float().to(pred.device)
+        label_one_hot = torch.clamp(label_one_hot, min=1e-4, max=1.0)
+        rce = (-1 * torch.sum(pred * torch.log(label_one_hot), dim=1))
+
+        loss = self.a * ce + self.b * rce.mean()
+        return loss
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=1, gamma=2, weight=0.20):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.cross_entropy = nn.CrossEntropyLoss()
+        self.weight = weight
+
+    def forward(self, inputs, targets):
+        ce = self.cross_entropy(inputs, targets)
+        onehot_targets = torch.nn.functional.one_hot(targets, num_classes=36)
+        BCE_loss = F.binary_cross_entropy_with_logits(inputs, onehot_targets.float(), reduce=False)
+        pt = torch.exp(-BCE_loss)
+        FL_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
+
+        return self.weight * torch.mean(FL_loss) + ce    
+ 
+def mixup_cross_entropy(pred, y_a, y_b, lam):
+    cls_criterion = nn.CrossEntropyLoss()
+    return lam * cls_criterion(pred, y_a) + (1 - lam) * cls_criterion(pred, y_b)
+
+def get_perm(x):
+    batch_size = x.size(0)
+    index = torch.randperm(batch_size)
+    if args.gpu:
+        index = torch.randperm(batch_size).cuda()
+    return index
 
 def read_json(input_file):
     """Reads a json list file."""
@@ -154,7 +207,9 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
     # fgm
     if args.fgm:
         fgm = FGM(model)
-
+    # awp
+    if args.awp:
+        awp = AWP(model, start_epoch = args.awp_start_epoch)
     # pgd
     if args.pgd != 0:
         pgd = PGD(model)
@@ -174,12 +229,24 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
             attention_mask = attention_mask.cuda()
             label = label.cuda()
 
-        output = model(input_ids, token_type_ids, attention_mask)
+        if args.mixif:
+            lam = np.random.beta(0.20, 0.20)
+            index = get_perm(input_ids)
+            input_ids_perm = input_ids[index]
+            label_perm = label[index]
+            att_perm = attention_mask[index]
+        
+        if not args.mixif:
+            output = model(input_ids, token_type_ids, attention_mask)
+        else:
+            output = model.forward_mix_encoder(input_ids, attention_mask, input_ids_perm, att_perm, token_type_ids, lam)
 
         # rdrop
         if args.rdrop != 0.0:
             output_rdrop = model(input_ids, token_type_ids, attention_mask)
             loss_single = criterion(output, output_rdrop, label, args.rdrop)
+        elif args.mixif:
+            loss_single = criterion(output, label, label_perm, lam)
         else:
             loss_single = criterion(output, label)
 
@@ -196,6 +263,12 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
             loss_adv.backward()
             fgm.restore() # restore embedding
 
+        # awp attack    
+        if args.awp and epoch >= args.awp_start_epoch:
+            adv_loss = awp.attack_backward(input_ids, token_type_ids, attention_mask, epoch, label, criterion)
+            adv_loss.backward()
+            awp.restore() 
+    
         # PGD attack
         if args.pgd != 0:
             pgd.backup_grad()
@@ -313,6 +386,12 @@ def train(args,data):
         # whether to use RDrop
         if args.rdrop != 0.0:
             criterion = RDrop()
+        elif args.sce:
+            criterion = SCELoss()
+        elif args.fl:
+            criterion = FocalLoss()
+        elif args.mixif:
+            criterion = mixup_cross_entropy
         else:
             criterion = nn.CrossEntropyLoss()
 
@@ -343,6 +422,9 @@ def train(args,data):
         ]
         optimizer = AdamW(optimizer_grouped_parameters, lr=args.lr,correct_bias=True)
         scheduler = optimizer
+        if args.swa:
+            swa_model = AveragedModel(model).to('cuda')
+            swa_scheduler = SWALR(optimizer, swa_lr=args.lr)
         # warmup
         if args.warmup != 0.0:
             if args.K == 1:
@@ -369,10 +451,16 @@ def train(args,data):
             # train and evaluate train dataset
             loss,metrics_train = train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, epoch+1, ema)
             logging.info(f'Train Epoch = {epoch+1} Loss:{loss:{.6}} Metrics:{metrics_train}')
+            if args.swa:
+                swa_model.update_parameters(model)
+                swa_scheduler.step()
             if args.ema != 0.0:
                 ema.apply_shadow()
             # evaluate eval dataset
-            metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
+            if args.swa:
+                metrics = eval_one_epoch(args,eval_loader,swa_model,epoch+1)
+            else:
+                metrics = eval_one_epoch(args,eval_loader,model,epoch+1)
             logging.info(f'Eval Epoch = {epoch+1} Metrics:{metrics}')
             main_metric = metrics[list(metrics.keys())[0]]
             # save model
@@ -385,7 +473,11 @@ def train(args,data):
                 best_metrics_list[n_fold] = main_metric
                 early_stop_sign.append(0)
                 if args.save:
-                    torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                    if args.swa:
+                        torch.optim.swa_utils.update_bn(train_loader, swa_model, device='cuda')
+                        torch.save(swa_model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                    else:
+                        torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
                     logging.info(f'Best Model Saved!')
             else:
                 early_stop_sign.append(1)
@@ -403,6 +495,8 @@ def train(args,data):
             if args.ema != 0.0:
                 ema.restore()
         # clear gpu parameters
+        if args.swa:
+            torch.save(swa_model.state_dict(), MODEL_PATH + 'last_{}.pt'.format(K))
         if args.gpu:
             torch.cuda.empty_cache()
 
