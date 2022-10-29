@@ -468,14 +468,19 @@ def test(args,data,mode):
             K += 1
         # build model
         model = PretrainedModel(args.bert, args.label, args.feature_layer, args.dropout)
+
         # use GPU
         if args.gpu:
             model = model.cuda()
             if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
                 model= nn.DataParallel(model)
+            elif args.swa:
+                model= nn.DataParallel(model)
+
         # load best model
         model.load_state_dict(torch.load(MODEL_PATH + 'best_{}.pt'.format(K)), not args.swa)
         logging.info(f'best_{K}.pt Loaded!')
+
         # set eval mode
         model.eval()
 
