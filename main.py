@@ -523,7 +523,7 @@ def test(args,data,mode):
             if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
                 model= nn.DataParallel(model)
         # load best model
-        model.load_state_dict(torch.load(MODEL_PATH + 'best_{}.pt'.format(K)))
+        model.load_state_dict(torch.load(MODEL_PATH + 'best_{}.pt'.format(K)), not args.swa)
         logging.info(f'best_{K}.pt Loaded!')
         # set eval mode
         model.eval()
