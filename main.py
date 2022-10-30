@@ -92,6 +92,9 @@ config_logging("log_" + TIMESTAMP)
 logging.info('Log is ready!')
 logging.info(args)
 
+class_freq = [1775, 656, 3062, 336, 538, 957, 702, 813, 675, 302, 1589, 1023, 49, 533, 163, 402, 258, 260, 277, 173, 756, 319, 26, 288, 288, 176, 238, 171, 131, 116, 156, 85, 5, 137, 153, 35]
+train_num = 17623
+
 if args.board:
     writer = SummaryWriter('runs/' + TIMESTAMP)
     logging.info('Tensorboard is ready!')
