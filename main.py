@@ -22,7 +22,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from trick import RDrop, EMA ,PGD, FGM, AWP, FocalLoss, SCELoss
+from trick import RDrop, EMA ,PGD, FGM, AWP, FocalLoss, SCELoss, ResampleLoss
 from dataset import LoadData
 from log import config_logging
 
@@ -72,6 +72,12 @@ parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--sce',  action='store_true', help='Whether to use symmetric cross entropy loss')
 parser.add_argument('--swa', action='store_true', help='swa ensemble')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
+parser.add_argument('--cb',  action='store_true', default=False, help='Whether to use cb loss combined with ce loss')
+parser.add_argument('--rfl',  action='store_true', default=False, help='Whether to use rfl loss combined with ce loss')
+parser.add_argument('--ntrfl',  action='store_true', default=False, help='Whether to use ntrfl loss combined with ce loss')
+parser.add_argument('--dbfl',  action='store_true', default=False, help='Whether to use dbfl loss combined with ce loss')
+parser.add_argument('--cbntr',  action='store_true', default=False, help='Whether to use cbntr loss combined with ce loss')
+parser.add_argument('--db',  action='store_true', default=False, help='Whether to use db loss combined with ce loss')
 
 args = parser.parse_args()
 
@@ -341,6 +347,45 @@ def train(args,data):
             criterion = SCELoss()
         elif args.fl:
             criterion = FocalLoss()
+        elif args.cb: 
+            criterion = ResampleLoss(reweight_func='CB', loss_weight=5.0,
+                                     focal=dict(focal=True, alpha=0.5, gamma=2),
+                                     logit_reg=dict(),
+                                     CB_loss=dict(CB_beta=0.9, CB_mode='by_class'),
+                                     class_freq=class_freq, train_num=train_num)   
+        elif args.rfl:
+            criterion = ResampleLoss(reweight_func='rebalance', loss_weight=1.0,
+                                     focal=dict(focal=True, alpha=0.5, gamma=2),
+                                     logit_reg=dict(),
+                                     map_param=dict(alpha=0.1, beta=10.0, gamma=0.05), 
+                                     class_freq=class_freq, train_num=train_num)
+
+        elif args.ntrfl: 
+            criterion = ResampleLoss(reweight_func=None, loss_weight=0.5,
+                                     focal=dict(focal=True, alpha=0.5, gamma=2),
+                                     logit_reg=dict(init_bias=0.05, neg_scale=2.0),
+                                     class_freq=class_freq, train_num=train_num)  
+
+        elif args.dbfl:
+            criterion = ResampleLoss(reweight_func='rebalance', loss_weight=0.5,
+                                     focal=dict(focal=False, alpha=0.5, gamma=2),
+                                     logit_reg=dict(init_bias=0.05, neg_scale=2.0),
+                                     map_param=dict(alpha=0.1, beta=10.0, gamma=0.05), 
+                                     class_freq=class_freq, train_num=train_num)
+
+        elif args.cbntr:
+            criterion = ResampleLoss(reweight_func='CB', loss_weight=10.0,
+                                     focal=dict(focal=True, alpha=0.5, gamma=2),
+                                     logit_reg=dict(init_bias=0.05, neg_scale=2.0),
+                                     CB_loss=dict(CB_beta=0.9, CB_mode='by_class'),
+                                     class_freq=class_freq, train_num=train_num) 
+
+        elif args.db: # DB
+            criterion = ResampleLoss(reweight_func='rebalance', loss_weight=1.0,
+                                     focal=dict(focal=True, alpha=0.5, gamma=2),
+                                     logit_reg=dict(init_bias=0.05, neg_scale=2.0),
+                                     map_param=dict(alpha=0.1, beta=10.0, gamma=0.05), 
+                                     class_freq=class_freq, train_num=train_num)
         elif args.mixif:
             criterion = mixup_cross_entropy
         else:
