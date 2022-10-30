@@ -72,6 +72,7 @@ parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
 parser.add_argument('--sce',  action='store_true', help='Whether to use symmetric cross entropy loss')
 parser.add_argument('--swa', action='store_true', help='swa ensemble')
 parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
+
 parser.add_argument('--cb',  action='store_true', default=False, help='Whether to use cb loss combined with ce loss')
 parser.add_argument('--rfl',  action='store_true', default=False, help='Whether to use rfl loss combined with ce loss')
 parser.add_argument('--ntrfl',  action='store_true', default=False, help='Whether to use ntrfl loss combined with ce loss')
