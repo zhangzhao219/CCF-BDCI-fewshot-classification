@@ -32,6 +32,7 @@ parser.add_argument('--model_weight', type=ast.literal_eval)
 
 parser.add_argument('--score', action='store_true', help='whether to output score')
 parser.add_argument('--single', action='store_true', help='whether to output single result')
+parser.add_argument('--softmax', action='store_true', help='whether to output softmax score')
 
 args = parser.parse_args()
 
@@ -126,14 +127,20 @@ def predict_single(args, data, model_config, index):
     predict_score_single = predict_result.max(axis=1)
     predict_result_single = predict_result.argmax(axis=1)
 
+    output_list = ['id','label']
+    if args.softmax:
+        for i in range(args.label):
+            data[str(i)] = predict_result[:,i]
+            output_list.append(str(i))
+
     if args.single:
+        data['label'] = predict_result_single
         if not args.score:
-            data['label'] = predict_result_single
-            data[['id','label']].to_csv('result_'+TIMESTAMP+'_'+str(index)+'.csv',index=None)
+            data[output_list].to_csv('result_'+TIMESTAMP+'_'+str(index)+'.csv',index=None)
         else:
-            data['label'] = predict_result_single
+            output_list.append('score')
             data['score'] = predict_score_single
-            data[['id','label','score']].to_csv('result_score_'+TIMESTAMP+'_'+str(index)+'.csv',index=None)
+            data[output_list].to_csv('result_score_'+TIMESTAMP+'_'+str(index)+'.csv',index=None)
 
     logging.info(f'Predict {index} Finished!')
     return predict_result
@@ -146,6 +153,8 @@ if __name__ == '__main__':
         DATA = read_data(args.data_file, model_parameters['language'])
         predict_result_single = predict_single(args, DATA, model_parameters, index+1)
         predict_result_list.append(predict_result_single)
+
+    
     
     model_weight = np.array(args.model_weight) / sum(args.model_weight)
     predict_result = np.sum(np.array(predict_result_list) * model_weight.reshape(-1,1,1),axis=0)
@@ -154,13 +163,19 @@ if __name__ == '__main__':
 
     output_data = DATA
 
+    output_list = ['id','label']
+    if args.softmax:
+        for i in range(args.label):
+            output_data[str(i)] = predict_result[:,i]
+            output_list.append(str(i))
+
+    output_data['label'] = predict_result_single
     if not args.score:
-        output_data['label'] = predict_result_single
-        output_data[['id','label']].to_csv('result_'+TIMESTAMP+'_all.csv',index=None)
+        output_data[output_list].to_csv('result_'+TIMESTAMP+'_all.csv',index=None)
     else:
+        output_list.append('score')
         predict_score_single = predict_result.max(axis=1)
-        output_data['label'] = predict_result_single
         output_data['score'] = predict_score_single
-        output_data[['id','label','score']].to_csv('result_score_'+TIMESTAMP+'_all.csv',index=None)
+        output_data[output_list].to_csv('result_score_'+TIMESTAMP+'_all.csv',index=None)
 
     logging.info(f'Predict Finished!')
