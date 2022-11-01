@@ -79,6 +79,7 @@ parser.add_argument('--ntrfl',  action='store_true', default=False, help='Whethe
 parser.add_argument('--dbfl',  action='store_true', default=False, help='Whether to use dbfl loss combined with ce loss')
 parser.add_argument('--cbntr',  action='store_true', default=False, help='Whether to use cbntr loss combined with ce loss')
 parser.add_argument('--db',  action='store_true', default=False, help='Whether to use db loss combined with ce loss')
+parser.add_argument('--marc',  action='store_true', default=False, help='Whether to use Margin Calibration')
 
 args = parser.parse_args()
 
@@ -196,10 +197,17 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
             label_perm = label[index]
             att_perm = attention_mask[index]
         
-        if not args.mixif:
-            output = model(input_ids, token_type_ids, attention_mask)
-        else:
+        if args.mixif:
             output = model.forward_mix_encoder(input_ids, attention_mask, input_ids_perm, att_perm, token_type_ids, lam)
+        elif args.marc:
+            with torch.no_grad():
+                for name, parameter in model.named_parameters():
+                    if name == 'linear.2.weight':
+                        w_norm = torch.norm(parameter,dim=1)
+                logit_before, omega, beta = model(input_ids, token_type_ids, attention_mask)
+            output = omega * logit_before + beta * w_norm
+        else:
+            output = model(input_ids, token_type_ids, attention_mask)
 
         # rdrop
         if args.rdrop != 0.0:
@@ -287,7 +295,14 @@ def eval_one_epoch(args, eval_loader, model, epoch):
             attention_mask = attention_mask.cuda()
 
         with torch.no_grad():
-            output = model(input_ids, token_type_ids, attention_mask)
+            if args.marc:
+                for name, parameter in model.named_parameters():
+                    if name == 'linear.2.weight':
+                        w_norm = torch.norm(parameter,dim=1)
+                logit_before, omega, beta = model(input_ids, token_type_ids, attention_mask)
+                output = omega * logit_before + beta * w_norm
+            else:
+                output = model(input_ids, token_type_ids, attention_mask)
         if args.gpu:
             output = output.cpu()
         predict = output.argmax(axis=1).numpy().tolist()
@@ -521,10 +536,11 @@ def test(args,data,mode):
         # use GPU
         if args.gpu:
             model = model.cuda()
-            if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
-                model= nn.DataParallel(model)
-            elif args.swa:
-                model= nn.DataParallel(model)
+            if not args.marc:
+                if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
+                    model= nn.DataParallel(model)
+                elif args.swa:
+                    model= nn.DataParallel(model)
 
         # load best model
         model.load_state_dict(torch.load(MODEL_PATH + 'best_{}.pt'.format(K)), not args.swa)
@@ -550,7 +566,14 @@ def test(args,data,mode):
                 attention_mask = attention_mask.cuda()
                 
             with torch.no_grad():
-                output = model(input_ids, token_type_ids, attention_mask)
+                if args.marc:
+                    for name, parameter in model.named_parameters():
+                        if name == 'linear.2.weight':
+                            w_norm = torch.norm(parameter,dim=1)
+                    logit_before, omega, beta = model(input_ids, token_type_ids, attention_mask)
+                    output = omega * logit_before + beta * w_norm
+                else:
+                    output = model(input_ids, token_type_ids, attention_mask)
             if args.gpu:
                 output = output.cpu()
             output = nn.Softmax(dim=-1)(output).numpy()
