@@ -58,6 +58,7 @@ parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameter
 parser.add_argument('--model', type=str, required=True, help='Model type')
 
 parser.add_argument('--en', action='store_true', help='whether to use English model')
+parser.add_argument('--assignee', action='store_true', help='whether to not use assignee')
 
 parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
@@ -79,7 +80,6 @@ parser.add_argument('--ntrfl',  action='store_true', default=False, help='Whethe
 parser.add_argument('--dbfl',  action='store_true', default=False, help='Whether to use dbfl loss combined with ce loss')
 parser.add_argument('--cbntr',  action='store_true', default=False, help='Whether to use cbntr loss combined with ce loss')
 parser.add_argument('--db',  action='store_true', default=False, help='Whether to use db loss combined with ce loss')
-parser.add_argument('--marc',  action='store_true', default=False, help='Whether to use Margin Calibration')
 
 args = parser.parse_args()
 
@@ -139,7 +139,10 @@ def read_data(data_path):
     if args.en:
         df['input_string'] = df.apply(lambda x: f"The name of the patent is {x.title}, applied for by {x.assignee}, and the details are as follows: {x.abstract}",axis=1)
     else:
-        df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，由“{x.assignee}”公司申请，详细说明如下：{x.abstract}",axis=1)
+        if args.assignee:
+            df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，详细说明如下：{x.abstract}",axis=1)
+        else:
+            df['input_string'] = df.apply(lambda x: f"这份专利的标题为：《{x.title}》，由“{x.assignee}”公司申请，详细说明如下：{x.abstract}",axis=1)
     if len(df.columns) == 5:
         df['label_id'] = 0
     data = df[['id','input_string','label_id']]
@@ -199,13 +202,6 @@ def train_one_epoch(args, train_loader, model, optimizer, scheduler, criterion, 
         
         if args.mixif:
             output = model.forward_mix_encoder(input_ids, attention_mask, input_ids_perm, att_perm, token_type_ids, lam)
-        elif args.marc:
-            with torch.no_grad():
-                for name, parameter in model.named_parameters():
-                    if name == 'linear.2.weight':
-                        w_norm = torch.norm(parameter,dim=1)
-                logit_before, omega, beta = model(input_ids, token_type_ids, attention_mask)
-            output = omega * logit_before + beta * w_norm
         else:
             output = model(input_ids, token_type_ids, attention_mask)
 
@@ -295,14 +291,7 @@ def eval_one_epoch(args, eval_loader, model, epoch):
             attention_mask = attention_mask.cuda()
 
         with torch.no_grad():
-            if args.marc:
-                for name, parameter in model.named_parameters():
-                    if name == 'linear.2.weight':
-                        w_norm = torch.norm(parameter,dim=1)
-                logit_before, omega, beta = model(input_ids, token_type_ids, attention_mask)
-                output = omega * logit_before + beta * w_norm
-            else:
-                output = model(input_ids, token_type_ids, attention_mask)
+            output = model(input_ids, token_type_ids, attention_mask)
         if args.gpu:
             output = output.cpu()
         predict = output.argmax(axis=1).numpy().tolist()
@@ -536,11 +525,10 @@ def test(args,data,mode):
         # use GPU
         if args.gpu:
             model = model.cuda()
-            if not args.marc:
-                if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
-                    model= nn.DataParallel(model)
-                elif args.swa:
-                    model= nn.DataParallel(model)
+            if len(args.gpu) >= 2 or args.predict or args.predict_with_score:
+                model= nn.DataParallel(model)
+            elif args.swa:
+                model= nn.DataParallel(model)
 
         # load best model
         model.load_state_dict(torch.load(MODEL_PATH + 'best_{}.pt'.format(K)), not args.swa)
@@ -566,14 +554,7 @@ def test(args,data,mode):
                 attention_mask = attention_mask.cuda()
                 
             with torch.no_grad():
-                if args.marc:
-                    for name, parameter in model.named_parameters():
-                        if name == 'linear.2.weight':
-                            w_norm = torch.norm(parameter,dim=1)
-                    logit_before, omega, beta = model(input_ids, token_type_ids, attention_mask)
-                    output = omega * logit_before + beta * w_norm
-                else:
-                    output = model(input_ids, token_type_ids, attention_mask)
+                output = model(input_ids, token_type_ids, attention_mask)
             if args.gpu:
                 output = output.cpu()
             output = nn.Softmax(dim=-1)(output).numpy()

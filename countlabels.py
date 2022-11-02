@@ -26,7 +26,7 @@ if __name__ == '__main__':
     else:
         print('No support format!')
         sys.exit()
-
+    df[['id','title','assignee','label_id']].to_csv('real_data.csv',index=None)
     label_dict = dict(df[name].value_counts())
     dict = sorted(label_dict.items(), key=lambda d: d[0], reverse=False)
     print(dict)
