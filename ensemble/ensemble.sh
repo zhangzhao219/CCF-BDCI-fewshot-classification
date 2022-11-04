@@ -2,7 +2,7 @@
 
 python ensemble.py \
 --batch 256 --datetime $(date +%Y_%m_%d_%H_%M_%S) --gpu 2 3 \
---data_file data/fewshot/testA.json --model_folder_path models --label 36 \
+--data_file data/fewshot/testA.json --model_folder_path ../models --label 36 \
 --model_dict \
 "[
     {'name': '2022_10_28_15_41_45/best_1.pt', 'model': 'model5', 'bert': 'pretrained/nghuyong/ernie-3.0-base-zh',  'feature_layers': 4, 'dropout': 0.3, 'language': 'zh', 'swa': False},

@@ -1,6 +1,6 @@
 # 模型文件集成
 
-python3 ensemble_file.py --datetime $(date +%Y_%m_%d_%H_%M_%S) --file_folder goodmodels --mode 0 \
+python3 ensemble_file.py --datetime $(date +%Y_%m_%d_%H_%M_%S) --file_folder ../goodmodels --mode 0 \
 --data_list \
 "[
     '2022_11_03_19_41_25-a-0.63234589689/2022_11_03_19_41_25-1-0.61577661518.csv', 
@@ -12,4 +12,4 @@ python3 ensemble_file.py --datetime $(date +%Y_%m_%d_%H_%M_%S) --file_folder goo
     '2022_10_22_19_12_04-3-0.62876738448/2022_10_22_19_12_04-3-0.62876738448.csv',
     '2022_10_25_05_36_40_1-0.62529548458/2022_10_25_05_36_40_1-0.62529548458.csv',
 ]" \
---data_weight "[1, 1, 1, 1, 1, 1, 1, 1]" --modify --score
+--data_weight "[0.25, 0.25, 0.25, 0.25, 1, 1, 1, 1]" --modify --score

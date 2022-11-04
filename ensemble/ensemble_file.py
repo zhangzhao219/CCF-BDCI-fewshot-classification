@@ -13,7 +13,7 @@ parser.add_argument('--datetime', type=str, required=True, help='Get Time Stamp'
 parser.add_argument('--file_folder_path', type=str, help='File Folder Name')
 parser.add_argument('--label', type=int, default=36, help='label num')
 parser.add_argument('--mode', type=int, required=True, help='Ensemble Mode')
-parser.add_argument('--modify', type=int, required=True, help='Small change')
+parser.add_argument('--modify', action='store_true', help='Small change')
 parser.add_argument('--score', action='store_true', help='whether to output score')
 
 args = parser.parse_args()
