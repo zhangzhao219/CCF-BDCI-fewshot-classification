@@ -394,20 +394,20 @@ ernie-3.0-base-zh，model1，batch=128，4*V100 32G，seed=42
 
 ernie-3.0-base-zh，model1，batch=128，4*V100 32G
 
-| 时间戳              | 配置                                                        | 1 | 2  | 3  | 4  | 5  | all |
-| ------------------- | ----------------------------------------------------------- | - | -- | -- | -- | -- | --- |
-| 2022_11_05_05_35_07 | expand_train_6422.json<br />seed=42 fgm<br />K=4            |   |    |    |    | 无 |     |
-| 2022_11_05_05_37_29 | expand_train_6422.json<br />seed=42 fgm<br />K=5            |   |    |    |    |    |     |
-| 2022_11_05_05_40_49 | expand_train_6422.json<br />seed=909 nfgm<br />K=4          |   |    |    |    | 无 |     |
-| 2022_11_05_05_41_19 | expand_train_6422.json<br />seed=909 nfgm<br />K=5          |   |    |    |    |    |     |
-| 2022_11_05_05_44_35 | expand_train_6422_aug_tail.json<br />seed=42 fgm<br />K=5  |   |    |    |    |    |     |
-| 2022_11_05_05_45_50 | expand_train_6422_aug_tail.json<br />seed=42 fgm<br />K=4  |   |    |    |    | 无 |     |
-| 2022_11_05_05_46_36 | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=4 |   |    |    |    | 无 |     |
-| 2022_11_05_05_46_58 | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=5 |   |    |    |    |    |     |
-| 2022_11_05_05_55_17 | expand_train_6422_aug_tail.json<br />seed=42 fgm<br />K=1  |   | 无 | 无 | 无 | 无 | 无  |
-|                     | expand_train_6422.json<br />seed=42 fgm<br />K=1           |   | 无 | 无 | 无 | 无 | 无  |
-|                     | expand_train_6422.json<br />seed=909 nfgm<br />K=1          |   | 无 | 无 | 无 | 无 | 无  |
-|                     | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=1 |   | 无 | 无 | 无 | 无 | 无  |
+| 时间戳              | 配置                                                        | 1                                                             | 2                                     | 3                                     | 4                                     | 5                                     | all      |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------- | ------------------------------------- | ------------------------------------- | ------------------------------------- | -------- |
+| 2022_11_05_05_35_07 | expand_train_6422.json<br />seed=42 fgm<br />K=4            | Epoch =19<br />0.85822                                        | Epoch =30<br />0.954033               | Epoch=44<br />0.977698                |                                       | 无                                    |          |
+| 2022_11_05_05_37_29 | expand_train_6422.json<br />seed=42 fgm<br />K=5            | Epoch=22<br />0.848551                                        | Epoch=19<br />0.94463                 | Epoch =34<br />0.961831               |                                       |                                       |          |
+| 2022_11_05_05_40_49 | expand_train_6422.json<br />seed=909 nfgm<br />K=4          | Epoch =21<br />0.857822<br />0.939576                         | Epoch =23<br />0.947798<br />0.976549 | Epoch=21<br />0.964533<br />0.978804  | Epoch =28<br />0.94602<br />0.981704  | 无                                    | 0.967977 |
+| 2022_11_05_05_41_19 | expand_train_6422.json<br />seed=909 nfgm<br />K=5          | Epoch =26<br />0.837493                                       | Epoch =40<br />0.936513               | Epoch=19<br />0.95189                 | Epoch =42<br />0.957603               |                                       |          |
+| 2022_11_05_05_44_35 | expand_train_6422_aug_tail.json<br />seed=42 fgm<br />K=5  | Epoch =41<br />0.886191                                       | Epoch =11<br />0.979304               | Epoch =14<br />0.995935               |                                       |                                       |          |
+| 2022_11_05_05_45_50 | expand_train_6422_aug_tail.json<br />seed=42 fgm<br />K=4  | Epoch =21<br />0.89401                                        | Epoch =30<br />0.989453               | Epoch =14<br />0.989562               |                                       | 无                                    |          |
+| 2022_11_05_05_46_36 | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=4 | Epoch =37<br />0.889075<br />0.971764                         | Epoch =21<br />0.977557<br />0.991733 | Epoch=27<br />0.982924<br />0.994052  | Epoch =25<br />0.980508<br />0.992498 | 无                                    | 0.998318 |
+| 2022_11_05_05_46_58 | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=5 | Epoch =14<br />0.872622<br />0.972961                         | Epoch =16<br />0.974689<br />0.990382 | Epoch =28<br />0.991149<br />0.995408 | Epoch =25<br />0.977126<br />0.992539 | Epoch =23<br />0.978972<br />0.993038 | 0.997585 |
+| 2022_11_05_05_55_17 | expand_train_6422_aug_tail.json<br />seed=42 fgm<br />K=1  | Epoch =25<br />0.966275<br />0.991975<br />**0.62600679310** | 无                                    | 无                                    | 无                                    | 无                                    | 无       |
+| 2022_11_05_08_36_58 | expand_train_6422.json<br />seed=42 fgm<br />K=1           | Epoch =31<br />0.935153<br />0.98574                          | 无                                    | 无                                    | 无                                    | 无                                    | 无       |
+| 2022_11_05_11_38_44 | expand_train_6422.json<br />seed=909 nfgm<br />K=1          | Epoch =15<br />0.904939<br />0.943555                         | 无                                    | 无                                    | 无                                    | 无                                    | 无       |
+| 2022_11_05_12_51_22 | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=1 |                                                               | 无                                    | 无                                    | 无                                    | 无                                    | 无       |
 
 ### 模型集成
 
