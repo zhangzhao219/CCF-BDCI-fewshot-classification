@@ -409,6 +409,18 @@ ernie-3.0-base-zh，model1，batch=128，4*V100 32G
 | 2022_11_05_11_38_44 | expand_train_6422.json<br />seed=909 nfgm<br />K=1          | Epoch =15<br />0.904939<br />0.943555<br />不交                    | 无                                              | 无                                            | 无                                              | 无                                              | 无                          |
 | 2022_11_05_12_51_22 | expand_train_6422_aug_tail.json<br />seed=909 nfgm<br />K=1 | Epoch =16<br />0.961666<br />0.988959<br />0.60882394030           | 无                                              | 无                                            | 无                                              | 无                                              | 无                          |
 
+### 三折实验
+
+ernie-3.0-base-zh，model1，batch=128，4*V100 32G，seed=42 fgm，K=3
+
+| 时间戳              | 配置                            | 1 | 2 | 3 | all |
+| ------------------- | ------------------------------- | - | - | - | --- |
+| 2022_11_06_04_34_51 | expand_train_aug_tail.json      |   |   |   |     |
+| 2022_11_06_04_35_15 | expand_train_6422_aug_tail.json |   |   |   |     |
+| 2022_11_06_04_37_58 | expand_train_6422.json          |   |   |   |     |
+| 2022_11_06_04_38_28 | expand_train_632.json           |   |   |   |     |
+| 2022_11_06_04_40_54 | train_632_aug_tail.json         |   |   |   |     |
+
 ### 模型集成
 
 ensemble/ensemble.xlsx
