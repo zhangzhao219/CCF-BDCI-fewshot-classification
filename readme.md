@@ -421,6 +421,19 @@ ernie-3.0-base-zh，model1，batch=128，4*V100 32G，seed=42 fgm，K=3
 | 2022_11_06_04_38_28 | expand_train_632.json           | Epoch =20<br />0.883645<br />0.956869  | Epoch=26<br />0.950254<br />0.978839  | Epoch=23<br />0.956906<br />0.979368   | 0.993394                    |
 | 2022_11_06_09_05_33 | train_632_aug_tail.json         | Epoch = 14<br />0.898623<br />0.966144 | Epoch = 21<br />0.9794<br />0.990766  | Epoch = 38<br />0.971669<br />0.990213 | 0.998695                    |
 
+### 最后的实验
+
+model1，batch=128，4*V100 32G，seed=42 fgm
+
+| 时间戳              | 配置                                                                  | 1 | 2  | 3  | all |
+| ------------------- | --------------------------------------------------------------------- | - | -- | -- | --- |
+| 2022_11_06_18_41_14 | chinese-roberta-wwm-ext<br />expand_train_6422_aug_tail.json<br />K=3 |   |    |    |     |
+| 2022_11_06_18_51_20 | chinese-roberta-wwm-ext<br />expand_train_6422_aug_tail.json<br />K=1 |   | 无 | 无 | 无  |
+| 2022_11_06_19_06_54 | chinese-roberta-wwm-ext<br />expand_train_6460_aug_tail.json<br />K=3 |   |    |    |     |
+| 2022_11_06_19_07_09 | chinese-roberta-wwm-ext<br />expand_train_6460_aug_tail.json<br />K=1 |   | 无 | 无 | 无  |
+| 2022_11_06_19_08_24 | ernie-3.0-base-zh<br />expand_train_6460_aug_tail.json<br />K=3       |   |    |    |     |
+| 2022_11_06_19_09_34 | ernie-3.0-base-zh<br />expand_train_6460_aug_tail.json<br />K=1       |   | 无 | 无 | 无  |
+
 ### 模型集成
 
 ensemble/ensemble.xlsx
