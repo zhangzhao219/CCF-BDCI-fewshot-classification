@@ -425,14 +425,14 @@ ernie-3.0-base-zh，model1，batch=128，4*V100 32G，seed=42 fgm，K=3
 
 model1，batch=128，4*V100 32G，seed=42 fgm
 
-| 时间戳              | 配置                                                                  | 1 | 2  | 3  | all |
-| ------------------- | --------------------------------------------------------------------- | - | -- | -- | --- |
-| 2022_11_06_18_41_14 | chinese-roberta-wwm-ext<br />expand_train_6422_aug_tail.json<br />K=3 |   |    |    |     |
-| 2022_11_06_18_51_20 | chinese-roberta-wwm-ext<br />expand_train_6422_aug_tail.json<br />K=1 |   | 无 | 无 | 无  |
-| 2022_11_06_19_06_54 | chinese-roberta-wwm-ext<br />expand_train_6460_aug_tail.json<br />K=3 |   |    |    |     |
-| 2022_11_06_19_07_09 | chinese-roberta-wwm-ext<br />expand_train_6460_aug_tail.json<br />K=1 |   | 无 | 无 | 无  |
-| 2022_11_06_19_08_24 | ernie-3.0-base-zh<br />expand_train_6460_aug_tail.json<br />K=3       |   |    |    |     |
-| 2022_11_06_19_09_34 | ernie-3.0-base-zh<br />expand_train_6460_aug_tail.json<br />K=1       |   | 无 | 无 | 无  |
+| 时间戳              | 配置                                                                  | 1                                      | 2                                     | 3                                      | all      |
+| ------------------- | --------------------------------------------------------------------- | -------------------------------------- | ------------------------------------- | -------------------------------------- | -------- |
+| 2022_11_06_18_41_14 | chinese-roberta-wwm-ext<br />expand_train_6422_aug_tail.json<br />K=3 | Epoch = 17<br />0.912253<br />0.970553 | Epoch = 9<br />0.987278<br />0.990932 | Epoch = 33<br />0.978513<br />0.992626 | 0.997274 |
+| 2022_11_06_18_51_20 | chinese-roberta-wwm-ext<br />expand_train_6422_aug_tail.json<br />K=1 | Epoch =14<br />0.963594<br />0.991064  | 无                                    | 无                                     | 无       |
+| 2022_11_06_19_06_54 | chinese-roberta-wwm-ext<br />expand_train_6460_aug_tail.json<br />K=3 | Epoch =20<br />0.926447<br />0.9753    | Epoch =14<br />0.982489<br />0.991879 | Epoch =26<br />0.982073<br />0.993274  | 0.997845 |
+| 2022_11_06_19_07_09 | chinese-roberta-wwm-ext<br />expand_train_6460_aug_tail.json<br />K=1 | Epoch =22<br />0.967037<br />0.992853  | 无                                    | 无                                     | 无       |
+| 2022_11_06_19_08_24 | ernie-3.0-base-zh<br />expand_train_6460_aug_tail.json<br />K=3       | Epoch =20<br />0.929239<br />0.976106  | Epoch =20<br />0.989386<br />0.993937 | Epoch =16<br />0.984976<br />0.992109  | 0.996779 |
+| 2022_11_06_19_09_34 | ernie-3.0-base-zh<br />expand_train_6460_aug_tail.json<br />K=1       | Epoch =29<br />0.967763<br />0.99287   | 无                                    | 无                                     | 无       |
 
 ### 模型集成
 
