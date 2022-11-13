@@ -42,7 +42,7 @@
 
 - expand_train_cur_best.json:
 
-  结果文件： result_score_2022_10_20_02_42_28.csv (test F1 = 0.60286913357) 
+  结果文件：result_2022-10-20-02-42-28.csv (test F1 = 0.59952852320) 
 
   产生结果文件的实验配置：(chinese-macbert-base, expand_train.json, batch=12，epoch=40 (early stop), gpu=2,3, lr=2e-5, seed=42, split_test_ratio=0.2, dropout=0.3) , percentile = 20, fix_thresh = 0.70
 
@@ -56,5 +56,13 @@
 
 - expand_train_632_aug_tail.json
 
-  test F1 = 0.63293263685 的模型打伪标签（percentile = 20, fix_thresh = 0.70） ＋ 尾部类别 (12, 22, 32, 35) 大语种翻译 (每句话 5 次) + Chinese EDA 数据增强 (每句话 20 次)
+  test F1 = 0.63293263685 的模型打伪标签（percentile = 20, fix_thresh = 0.70） ＋ 尾部类别 (12, 22, 32, 35) 大语种 翻译 (每句话 5 次) + Chinese EDA 数据增强 (每句话 20 次)
+  
+- expand_train_6422_aug_tail.json
+
+  test F1 = 0.64228001063 的模型打伪标签（percentile = 20, fix_thresh = 0.70） ＋ 尾部类别 (12, 22, 32, 35) 大语种翻译 (每句话 5 次) + Chinese EDA 数据增强 (每句话 20 次)
+  
+- expand_train_6460_aug_tail.json
+
+  test F1 = 0.63926327467 (modify = True) 的模型打伪标签（percentile = 20, fix_thresh = 0.70） ＋ 尾部类别 (12, 22, 32, 35) 大语种翻译 (每句话 5 次) + Chinese EDA 数据增强 (每句话 20 次)
 
