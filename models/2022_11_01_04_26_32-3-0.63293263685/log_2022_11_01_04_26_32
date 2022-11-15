@@ -1,0 +1,547 @@
+2022/11/01 04:27:30 [INFO] main.93 Log is ready!
+2022/11/01 04:27:30 [INFO] main.94 Namespace(K=5, awp=-1, batch=128, bert='pretrained/nghuyong/ernie-3.0-base-zh', board=True, cb=False, cbntr=False, checkpoint=20, data_file='expand_train_aug_tail.json', data_folder_dir='fewshot', datetime='2022_11_01_04_26_32', db=False, dbfl=False, dropout=0.3, early_stop=10, ema=0.0, en=False, epoch=50, feature_layer=4, fgm=True, fl=False, freeze=0, gpu=['9', '10', '11', '12'], label=36, load=False, load_pt=None, lr=2e-05, mixif=False, model='model1', ntrfl=False, pgd=0, predict=False, predict_with_score=False, rdrop=0.0, rfl=False, save=True, sce=False, seed=42, split_test_ratio=0.2, swa=False, test=False, train=True, warmup=0.0)
+2022/11/01 04:27:30 [INFO] main.101 Tensorboard is ready!
+2022/11/01 04:27:30 [INFO] main.105 GPU:9,10,11,12
+2022/11/01 04:27:30 [INFO] main.116 Seed:42
+2022/11/01 04:27:31 [INFO] main.147 Read data: ./data/fewshot/expand_train_aug_tail.json
+2022/11/01 04:27:42 [INFO] main.340 Start Training 1!
+2022/11/01 04:32:26 [INFO] main.453 Train Epoch = 1 Loss:2.08548 Metrics:{'F1score': 0.454416, 'Precision': 0.512834, 'Recall': 0.47766}
+2022/11/01 04:32:35 [INFO] main.464 Eval Epoch = 1 Metrics:{'F1score': 0.422864, 'Precision': 0.503783, 'Recall': 0.446449}
+2022/11/01 04:32:38 [INFO] main.469 checkpoint_0_1_epoch.pt Saved!
+2022/11/01 04:32:38 [INFO] main.472 Test metrics:0.422864 > max_metric!
+2022/11/01 04:32:39 [INFO] main.481 Best Model Saved!
+2022/11/01 04:36:47 [INFO] main.453 Train Epoch = 2 Loss:0.975524 Metrics:{'F1score': 0.80769, 'Precision': 0.853424, 'Recall': 0.803012}
+2022/11/01 04:36:56 [INFO] main.464 Eval Epoch = 2 Metrics:{'F1score': 0.714149, 'Precision': 0.749824, 'Recall': 0.720764}
+2022/11/01 04:36:56 [INFO] main.472 Test metrics:0.714149 > max_metric!
+2022/11/01 04:36:57 [INFO] main.481 Best Model Saved!
+2022/11/01 04:41:06 [INFO] main.453 Train Epoch = 3 Loss:0.582674 Metrics:{'F1score': 0.953609, 'Precision': 0.969737, 'Recall': 0.944203}
+2022/11/01 04:41:15 [INFO] main.464 Eval Epoch = 3 Metrics:{'F1score': 0.83215, 'Precision': 0.842283, 'Recall': 0.834364}
+2022/11/01 04:41:15 [INFO] main.472 Test metrics:0.83215 > max_metric!
+2022/11/01 04:41:16 [INFO] main.481 Best Model Saved!
+2022/11/01 04:45:26 [INFO] main.453 Train Epoch = 4 Loss:0.38646 Metrics:{'F1score': 0.981361, 'Precision': 0.986785, 'Recall': 0.976854}
+2022/11/01 04:45:35 [INFO] main.464 Eval Epoch = 4 Metrics:{'F1score': 0.842464, 'Precision': 0.855264, 'Recall': 0.844248}
+2022/11/01 04:45:35 [INFO] main.472 Test metrics:0.842464 > max_metric!
+2022/11/01 04:45:36 [INFO] main.481 Best Model Saved!
+2022/11/01 04:49:46 [INFO] main.453 Train Epoch = 5 Loss:0.279927 Metrics:{'F1score': 0.990968, 'Precision': 0.993316, 'Recall': 0.988792}
+2022/11/01 04:49:55 [INFO] main.464 Eval Epoch = 5 Metrics:{'F1score': 0.851203, 'Precision': 0.856255, 'Recall': 0.861745}
+2022/11/01 04:49:55 [INFO] main.472 Test metrics:0.851203 > max_metric!
+2022/11/01 04:49:56 [INFO] main.481 Best Model Saved!
+2022/11/01 04:54:05 [INFO] main.453 Train Epoch = 6 Loss:0.2113 Metrics:{'F1score': 0.99408, 'Precision': 0.995016, 'Recall': 0.993255}
+2022/11/01 04:54:14 [INFO] main.464 Eval Epoch = 6 Metrics:{'F1score': 0.852833, 'Precision': 0.854935, 'Recall': 0.865963}
+2022/11/01 04:54:14 [INFO] main.472 Test metrics:0.852833 > max_metric!
+2022/11/01 04:54:14 [INFO] main.481 Best Model Saved!
+2022/11/01 04:58:24 [INFO] main.453 Train Epoch = 7 Loss:0.169971 Metrics:{'F1score': 0.99575, 'Precision': 0.996169, 'Recall': 0.995435}
+2022/11/01 04:58:33 [INFO] main.464 Eval Epoch = 7 Metrics:{'F1score': 0.853846, 'Precision': 0.852616, 'Recall': 0.871485}
+2022/11/01 04:58:33 [INFO] main.472 Test metrics:0.853846 > max_metric!
+2022/11/01 04:58:34 [INFO] main.481 Best Model Saved!
+2022/11/01 05:02:44 [INFO] main.453 Train Epoch = 8 Loss:0.13924 Metrics:{'F1score': 0.995408, 'Precision': 0.99632, 'Recall': 0.994619}
+2022/11/01 05:02:53 [INFO] main.464 Eval Epoch = 8 Metrics:{'F1score': 0.851312, 'Precision': 0.861659, 'Recall': 0.856459}
+2022/11/01 05:07:04 [INFO] main.453 Train Epoch = 9 Loss:0.115963 Metrics:{'F1score': 0.997338, 'Precision': 0.997395, 'Recall': 0.997309}
+2022/11/01 05:07:13 [INFO] main.464 Eval Epoch = 9 Metrics:{'F1score': 0.855908, 'Precision': 0.858729, 'Recall': 0.872229}
+2022/11/01 05:07:13 [INFO] main.472 Test metrics:0.855908 > max_metric!
+2022/11/01 05:07:14 [INFO] main.481 Best Model Saved!
+2022/11/01 05:11:22 [INFO] main.453 Train Epoch = 10 Loss:0.101182 Metrics:{'F1score': 0.997613, 'Precision': 0.997425, 'Recall': 0.997819}
+2022/11/01 05:11:31 [INFO] main.464 Eval Epoch = 10 Metrics:{'F1score': 0.85606, 'Precision': 0.853134, 'Recall': 0.876512}
+2022/11/01 05:11:31 [INFO] main.472 Test metrics:0.85606 > max_metric!
+2022/11/01 05:11:32 [INFO] main.481 Best Model Saved!
+2022/11/01 05:15:40 [INFO] main.453 Train Epoch = 11 Loss:0.0872634 Metrics:{'F1score': 0.998709, 'Precision': 0.998788, 'Recall': 0.998643}
+2022/11/01 05:15:49 [INFO] main.464 Eval Epoch = 11 Metrics:{'F1score': 0.860422, 'Precision': 0.86012, 'Recall': 0.880454}
+2022/11/01 05:15:49 [INFO] main.472 Test metrics:0.860422 > max_metric!
+2022/11/01 05:15:50 [INFO] main.481 Best Model Saved!
+2022/11/01 05:19:57 [INFO] main.453 Train Epoch = 12 Loss:0.0783805 Metrics:{'F1score': 0.998903, 'Precision': 0.999088, 'Recall': 0.998732}
+2022/11/01 05:20:06 [INFO] main.464 Eval Epoch = 12 Metrics:{'F1score': 0.856446, 'Precision': 0.854439, 'Recall': 0.874226}
+2022/11/01 05:24:14 [INFO] main.453 Train Epoch = 13 Loss:0.0680166 Metrics:{'F1score': 0.998642, 'Precision': 0.998808, 'Recall': 0.998489}
+2022/11/01 05:24:22 [INFO] main.464 Eval Epoch = 13 Metrics:{'F1score': 0.854879, 'Precision': 0.854085, 'Recall': 0.87472}
+2022/11/01 05:28:29 [INFO] main.453 Train Epoch = 14 Loss:0.0607127 Metrics:{'F1score': 0.998763, 'Precision': 0.998922, 'Recall': 0.998618}
+2022/11/01 05:28:38 [INFO] main.464 Eval Epoch = 14 Metrics:{'F1score': 0.854104, 'Precision': 0.856203, 'Recall': 0.869432}
+2022/11/01 05:32:45 [INFO] main.453 Train Epoch = 15 Loss:0.0561848 Metrics:{'F1score': 0.999233, 'Precision': 0.999433, 'Recall': 0.999043}
+2022/11/01 05:32:54 [INFO] main.464 Eval Epoch = 15 Metrics:{'F1score': 0.855039, 'Precision': 0.85392, 'Recall': 0.8726}
+2022/11/01 05:37:01 [INFO] main.453 Train Epoch = 16 Loss:0.0507371 Metrics:{'F1score': 0.999307, 'Precision': 0.99951, 'Recall': 0.999114}
+2022/11/01 05:37:10 [INFO] main.464 Eval Epoch = 16 Metrics:{'F1score': 0.854753, 'Precision': 0.85366, 'Recall': 0.87233}
+2022/11/01 05:41:18 [INFO] main.453 Train Epoch = 17 Loss:0.0449458 Metrics:{'F1score': 0.998948, 'Precision': 0.998919, 'Recall': 0.998996}
+2022/11/01 05:41:27 [INFO] main.464 Eval Epoch = 17 Metrics:{'F1score': 0.862001, 'Precision': 0.866543, 'Recall': 0.874988}
+2022/11/01 05:41:27 [INFO] main.472 Test metrics:0.862001 > max_metric!
+2022/11/01 05:41:28 [INFO] main.481 Best Model Saved!
+2022/11/01 05:45:35 [INFO] main.453 Train Epoch = 18 Loss:0.0419937 Metrics:{'F1score': 0.999503, 'Precision': 0.99989, 'Recall': 0.999125}
+2022/11/01 05:45:44 [INFO] main.464 Eval Epoch = 18 Metrics:{'F1score': 0.862408, 'Precision': 0.861618, 'Recall': 0.879296}
+2022/11/01 05:45:44 [INFO] main.472 Test metrics:0.862408 > max_metric!
+2022/11/01 05:45:45 [INFO] main.481 Best Model Saved!
+2022/11/01 05:49:55 [INFO] main.453 Train Epoch = 19 Loss:0.0378746 Metrics:{'F1score': 0.999217, 'Precision': 0.999572, 'Recall': 0.998872}
+2022/11/01 05:50:04 [INFO] main.464 Eval Epoch = 19 Metrics:{'F1score': 0.858588, 'Precision': 0.858766, 'Recall': 0.875177}
+2022/11/01 05:54:15 [INFO] main.453 Train Epoch = 20 Loss:0.0359323 Metrics:{'F1score': 0.999161, 'Precision': 0.999483, 'Recall': 0.998851}
+2022/11/01 05:54:24 [INFO] main.464 Eval Epoch = 20 Metrics:{'F1score': 0.858523, 'Precision': 0.856986, 'Recall': 0.873666}
+2022/11/01 05:58:34 [INFO] main.453 Train Epoch = 21 Loss:0.0333599 Metrics:{'F1score': 0.99945, 'Precision': 0.999784, 'Recall': 0.999125}
+2022/11/01 05:58:43 [INFO] main.464 Eval Epoch = 21 Metrics:{'F1score': 0.856501, 'Precision': 0.859454, 'Recall': 0.873399}
+2022/11/01 05:58:46 [INFO] main.469 checkpoint_20_1_epoch.pt Saved!
+2022/11/01 06:02:53 [INFO] main.453 Train Epoch = 22 Loss:0.0304586 Metrics:{'F1score': 0.999114, 'Precision': 0.999406, 'Recall': 0.998833}
+2022/11/01 06:03:02 [INFO] main.464 Eval Epoch = 22 Metrics:{'F1score': 0.861013, 'Precision': 0.870755, 'Recall': 0.868782}
+2022/11/01 06:07:10 [INFO] main.453 Train Epoch = 23 Loss:0.0280161 Metrics:{'F1score': 0.999503, 'Precision': 0.99989, 'Recall': 0.999125}
+2022/11/01 06:07:18 [INFO] main.464 Eval Epoch = 23 Metrics:{'F1score': 0.857192, 'Precision': 0.856091, 'Recall': 0.874083}
+2022/11/01 06:11:26 [INFO] main.453 Train Epoch = 24 Loss:0.0259383 Metrics:{'F1score': 0.999656, 'Precision': 0.999886, 'Recall': 0.99943}
+2022/11/01 06:11:35 [INFO] main.464 Eval Epoch = 24 Metrics:{'F1score': 0.8614, 'Precision': 0.86388, 'Recall': 0.872565}
+2022/11/01 06:15:42 [INFO] main.453 Train Epoch = 25 Loss:0.0241357 Metrics:{'F1score': 0.999377, 'Precision': 0.999394, 'Recall': 0.999366}
+2022/11/01 06:15:51 [INFO] main.464 Eval Epoch = 25 Metrics:{'F1score': 0.866447, 'Precision': 0.868629, 'Recall': 0.876882}
+2022/11/01 06:15:51 [INFO] main.472 Test metrics:0.866447 > max_metric!
+2022/11/01 06:15:52 [INFO] main.481 Best Model Saved!
+2022/11/01 06:19:59 [INFO] main.453 Train Epoch = 26 Loss:0.0228093 Metrics:{'F1score': 0.999758, 'Precision': 0.999868, 'Recall': 0.999649}
+2022/11/01 06:20:09 [INFO] main.464 Eval Epoch = 26 Metrics:{'F1score': 0.864908, 'Precision': 0.863452, 'Recall': 0.883318}
+2022/11/01 06:24:16 [INFO] main.453 Train Epoch = 27 Loss:0.0211643 Metrics:{'F1score': 0.999204, 'Precision': 0.999021, 'Recall': 0.999396}
+2022/11/01 06:24:25 [INFO] main.464 Eval Epoch = 27 Metrics:{'F1score': 0.865917, 'Precision': 0.867158, 'Recall': 0.880697}
+2022/11/01 06:28:32 [INFO] main.453 Train Epoch = 28 Loss:0.0196172 Metrics:{'F1score': 0.999861, 'Precision': 0.999989, 'Recall': 0.999735}
+2022/11/01 06:28:41 [INFO] main.464 Eval Epoch = 28 Metrics:{'F1score': 0.8634, 'Precision': 0.862942, 'Recall': 0.880071}
+2022/11/01 06:32:58 [INFO] main.453 Train Epoch = 29 Loss:0.0185268 Metrics:{'F1score': 0.999861, 'Precision': 0.999989, 'Recall': 0.999735}
+2022/11/01 06:33:07 [INFO] main.464 Eval Epoch = 29 Metrics:{'F1score': 0.87611, 'Precision': 0.883026, 'Recall': 0.882118}
+2022/11/01 06:33:07 [INFO] main.472 Test metrics:0.87611 > max_metric!
+2022/11/01 06:33:09 [INFO] main.481 Best Model Saved!
+2022/11/01 06:37:20 [INFO] main.453 Train Epoch = 30 Loss:0.0176363 Metrics:{'F1score': 0.999731, 'Precision': 0.999763, 'Recall': 0.999701}
+2022/11/01 06:37:28 [INFO] main.464 Eval Epoch = 30 Metrics:{'F1score': 0.864315, 'Precision': 0.8668, 'Recall': 0.880262}
+2022/11/01 06:41:36 [INFO] main.453 Train Epoch = 31 Loss:0.0166568 Metrics:{'F1score': 0.999861, 'Precision': 0.999989, 'Recall': 0.999735}
+2022/11/01 06:41:45 [INFO] main.464 Eval Epoch = 31 Metrics:{'F1score': 0.864754, 'Precision': 0.866474, 'Recall': 0.88228}
+2022/11/01 06:45:52 [INFO] main.453 Train Epoch = 32 Loss:0.0152613 Metrics:{'F1score': 0.999861, 'Precision': 0.999989, 'Recall': 0.999735}
+2022/11/01 06:46:01 [INFO] main.464 Eval Epoch = 32 Metrics:{'F1score': 0.861056, 'Precision': 0.863328, 'Recall': 0.876308}
+2022/11/01 06:50:08 [INFO] main.453 Train Epoch = 33 Loss:0.0144542 Metrics:{'F1score': 0.99979, 'Precision': 0.99989, 'Recall': 0.999692}
+2022/11/01 06:50:16 [INFO] main.464 Eval Epoch = 33 Metrics:{'F1score': 0.863783, 'Precision': 0.868325, 'Recall': 0.879012}
+2022/11/01 06:54:25 [INFO] main.453 Train Epoch = 34 Loss:0.0144878 Metrics:{'F1score': 0.999414, 'Precision': 0.999792, 'Recall': 0.999045}
+2022/11/01 06:54:34 [INFO] main.464 Eval Epoch = 34 Metrics:{'F1score': 0.863491, 'Precision': 0.865177, 'Recall': 0.880864}
+2022/11/01 06:58:42 [INFO] main.453 Train Epoch = 35 Loss:0.0131303 Metrics:{'F1score': 0.999861, 'Precision': 0.999989, 'Recall': 0.999735}
+2022/11/01 06:58:51 [INFO] main.464 Eval Epoch = 35 Metrics:{'F1score': 0.862028, 'Precision': 0.865355, 'Recall': 0.877122}
+2022/11/01 07:02:58 [INFO] main.453 Train Epoch = 36 Loss:0.012395 Metrics:{'F1score': 0.99985, 'Precision': 0.999966, 'Recall': 0.999735}
+2022/11/01 07:03:07 [INFO] main.464 Eval Epoch = 36 Metrics:{'F1score': 0.872995, 'Precision': 0.878694, 'Recall': 0.88187}
+2022/11/01 07:07:14 [INFO] main.453 Train Epoch = 37 Loss:0.01126 Metrics:{'F1score': 0.99985, 'Precision': 0.999966, 'Recall': 0.999735}
+2022/11/01 07:07:23 [INFO] main.464 Eval Epoch = 37 Metrics:{'F1score': 0.866344, 'Precision': 0.867358, 'Recall': 0.882913}
+2022/11/01 07:11:29 [INFO] main.453 Train Epoch = 38 Loss:0.0109794 Metrics:{'F1score': 0.99985, 'Precision': 0.999966, 'Recall': 0.999735}
+2022/11/01 07:11:38 [INFO] main.464 Eval Epoch = 38 Metrics:{'F1score': 0.870699, 'Precision': 0.88155, 'Recall': 0.874638}
+2022/11/01 07:15:45 [INFO] main.453 Train Epoch = 39 Loss:0.0103577 Metrics:{'F1score': 0.99985, 'Precision': 0.999966, 'Recall': 0.999735}
+2022/11/01 07:15:54 [INFO] main.464 Eval Epoch = 39 Metrics:{'F1score': 0.871222, 'Precision': 0.877474, 'Recall': 0.879374}
+2022/11/01 07:15:54 [INFO] main.485 The Effect of last 10 epochs has not improved! Early Stop!
+2022/11/01 07:15:54 [INFO] main.486 Best Metric: 0.87611
+2022/11/01 07:15:59 [INFO] main.340 Start Training 2!
+2022/11/01 07:20:25 [INFO] main.453 Train Epoch = 1 Loss:2.07545 Metrics:{'F1score': 0.401669, 'Precision': 0.459286, 'Recall': 0.434364}
+2022/11/01 07:20:34 [INFO] main.464 Eval Epoch = 1 Metrics:{'F1score': 0.404665, 'Precision': 0.438236, 'Recall': 0.435118}
+2022/11/01 07:20:38 [INFO] main.469 checkpoint_0_2_epoch.pt Saved!
+2022/11/01 07:20:38 [INFO] main.472 Test metrics:0.404665 > max_metric!
+2022/11/01 07:20:39 [INFO] main.481 Best Model Saved!
+2022/11/01 07:24:46 [INFO] main.453 Train Epoch = 2 Loss:1.03432 Metrics:{'F1score': 0.719716, 'Precision': 0.777922, 'Recall': 0.722861}
+2022/11/01 07:24:55 [INFO] main.464 Eval Epoch = 2 Metrics:{'F1score': 0.714839, 'Precision': 0.775518, 'Recall': 0.719509}
+2022/11/01 07:24:55 [INFO] main.472 Test metrics:0.714839 > max_metric!
+2022/11/01 07:24:56 [INFO] main.481 Best Model Saved!
+2022/11/01 07:29:04 [INFO] main.453 Train Epoch = 3 Loss:0.660877 Metrics:{'F1score': 0.907746, 'Precision': 0.928981, 'Recall': 0.89936}
+2022/11/01 07:29:13 [INFO] main.464 Eval Epoch = 3 Metrics:{'F1score': 0.897887, 'Precision': 0.93695, 'Recall': 0.884268}
+2022/11/01 07:29:13 [INFO] main.472 Test metrics:0.897887 > max_metric!
+2022/11/01 07:29:14 [INFO] main.481 Best Model Saved!
+2022/11/01 07:33:22 [INFO] main.453 Train Epoch = 4 Loss:0.456282 Metrics:{'F1score': 0.948439, 'Precision': 0.953272, 'Recall': 0.946035}
+2022/11/01 07:33:31 [INFO] main.464 Eval Epoch = 4 Metrics:{'F1score': 0.928936, 'Precision': 0.94689, 'Recall': 0.920903}
+2022/11/01 07:33:31 [INFO] main.472 Test metrics:0.928936 > max_metric!
+2022/11/01 07:33:32 [INFO] main.481 Best Model Saved!
+2022/11/01 07:37:41 [INFO] main.453 Train Epoch = 5 Loss:0.344164 Metrics:{'F1score': 0.96837, 'Precision': 0.968909, 'Recall': 0.968645}
+2022/11/01 07:37:49 [INFO] main.464 Eval Epoch = 5 Metrics:{'F1score': 0.9514, 'Precision': 0.955186, 'Recall': 0.950598}
+2022/11/01 07:37:49 [INFO] main.472 Test metrics:0.9514 > max_metric!
+2022/11/01 07:37:51 [INFO] main.481 Best Model Saved!
+2022/11/01 07:41:59 [INFO] main.453 Train Epoch = 6 Loss:0.263732 Metrics:{'F1score': 0.977298, 'Precision': 0.975306, 'Recall': 0.979637}
+2022/11/01 07:42:08 [INFO] main.464 Eval Epoch = 6 Metrics:{'F1score': 0.950201, 'Precision': 0.951371, 'Recall': 0.951219}
+2022/11/01 07:46:17 [INFO] main.453 Train Epoch = 7 Loss:0.212465 Metrics:{'F1score': 0.983344, 'Precision': 0.984086, 'Recall': 0.98288}
+2022/11/01 07:46:26 [INFO] main.464 Eval Epoch = 7 Metrics:{'F1score': 0.958243, 'Precision': 0.964978, 'Recall': 0.953981}
+2022/11/01 07:46:26 [INFO] main.472 Test metrics:0.958243 > max_metric!
+2022/11/01 07:46:27 [INFO] main.481 Best Model Saved!
+2022/11/01 07:50:35 [INFO] main.453 Train Epoch = 8 Loss:0.178087 Metrics:{'F1score': 0.983697, 'Precision': 0.981584, 'Recall': 0.98617}
+2022/11/01 07:50:44 [INFO] main.464 Eval Epoch = 8 Metrics:{'F1score': 0.954833, 'Precision': 0.953379, 'Recall': 0.958223}
+2022/11/01 07:54:53 [INFO] main.453 Train Epoch = 9 Loss:0.14924 Metrics:{'F1score': 0.988285, 'Precision': 0.988003, 'Recall': 0.98866}
+2022/11/01 07:55:02 [INFO] main.464 Eval Epoch = 9 Metrics:{'F1score': 0.962585, 'Precision': 0.967012, 'Recall': 0.959414}
+2022/11/01 07:55:02 [INFO] main.472 Test metrics:0.962585 > max_metric!
+2022/11/01 07:55:03 [INFO] main.481 Best Model Saved!
+2022/11/01 07:59:12 [INFO] main.453 Train Epoch = 10 Loss:0.132191 Metrics:{'F1score': 0.990637, 'Precision': 0.990426, 'Recall': 0.990971}
+2022/11/01 07:59:21 [INFO] main.464 Eval Epoch = 10 Metrics:{'F1score': 0.956584, 'Precision': 0.959049, 'Recall': 0.955703}
+2022/11/01 08:03:31 [INFO] main.453 Train Epoch = 11 Loss:0.112573 Metrics:{'F1score': 0.990634, 'Precision': 0.99068, 'Recall': 0.990699}
+2022/11/01 08:03:39 [INFO] main.464 Eval Epoch = 11 Metrics:{'F1score': 0.958516, 'Precision': 0.961177, 'Recall': 0.957666}
+2022/11/01 08:07:48 [INFO] main.453 Train Epoch = 12 Loss:0.10097 Metrics:{'F1score': 0.992597, 'Precision': 0.992568, 'Recall': 0.992712}
+2022/11/01 08:07:57 [INFO] main.464 Eval Epoch = 12 Metrics:{'F1score': 0.960681, 'Precision': 0.961231, 'Recall': 0.961297}
+2022/11/01 08:12:06 [INFO] main.453 Train Epoch = 13 Loss:0.0908059 Metrics:{'F1score': 0.993384, 'Precision': 0.993455, 'Recall': 0.993409}
+2022/11/01 08:12:15 [INFO] main.464 Eval Epoch = 13 Metrics:{'F1score': 0.960172, 'Precision': 0.960371, 'Recall': 0.960928}
+2022/11/01 08:16:24 [INFO] main.453 Train Epoch = 14 Loss:0.0816852 Metrics:{'F1score': 0.993434, 'Precision': 0.992386, 'Recall': 0.994557}
+2022/11/01 08:16:33 [INFO] main.464 Eval Epoch = 14 Metrics:{'F1score': 0.955186, 'Precision': 0.955261, 'Recall': 0.956232}
+2022/11/01 08:20:45 [INFO] main.453 Train Epoch = 15 Loss:0.0728785 Metrics:{'F1score': 0.995367, 'Precision': 0.995296, 'Recall': 0.995505}
+2022/11/01 08:20:54 [INFO] main.464 Eval Epoch = 15 Metrics:{'F1score': 0.961742, 'Precision': 0.96946, 'Recall': 0.956715}
+2022/11/01 08:25:02 [INFO] main.453 Train Epoch = 16 Loss:0.0657624 Metrics:{'F1score': 0.9954, 'Precision': 0.995467, 'Recall': 0.995385}
+2022/11/01 08:25:11 [INFO] main.464 Eval Epoch = 16 Metrics:{'F1score': 0.962607, 'Precision': 0.965347, 'Recall': 0.962428}
+2022/11/01 08:25:11 [INFO] main.472 Test metrics:0.962607 > max_metric!
+2022/11/01 08:25:12 [INFO] main.481 Best Model Saved!
+2022/11/01 08:29:22 [INFO] main.453 Train Epoch = 17 Loss:0.060821 Metrics:{'F1score': 0.996174, 'Precision': 0.996473, 'Recall': 0.995934}
+2022/11/01 08:29:31 [INFO] main.464 Eval Epoch = 17 Metrics:{'F1score': 0.961283, 'Precision': 0.966782, 'Recall': 0.958029}
+2022/11/01 08:33:41 [INFO] main.453 Train Epoch = 18 Loss:0.0550208 Metrics:{'F1score': 0.996528, 'Precision': 0.99665, 'Recall': 0.996433}
+2022/11/01 08:33:50 [INFO] main.464 Eval Epoch = 18 Metrics:{'F1score': 0.962594, 'Precision': 0.965763, 'Recall': 0.96128}
+2022/11/01 08:38:00 [INFO] main.453 Train Epoch = 19 Loss:0.0515185 Metrics:{'F1score': 0.996774, 'Precision': 0.996679, 'Recall': 0.996898}
+2022/11/01 08:38:08 [INFO] main.464 Eval Epoch = 19 Metrics:{'F1score': 0.956325, 'Precision': 0.959518, 'Recall': 0.954597}
+2022/11/01 08:42:18 [INFO] main.453 Train Epoch = 20 Loss:0.0474066 Metrics:{'F1score': 0.997595, 'Precision': 0.997772, 'Recall': 0.997439}
+2022/11/01 08:42:27 [INFO] main.464 Eval Epoch = 20 Metrics:{'F1score': 0.957798, 'Precision': 0.962009, 'Recall': 0.956025}
+2022/11/01 08:46:38 [INFO] main.453 Train Epoch = 21 Loss:0.0427391 Metrics:{'F1score': 0.997289, 'Precision': 0.99778, 'Recall': 0.996823}
+2022/11/01 08:46:47 [INFO] main.464 Eval Epoch = 21 Metrics:{'F1score': 0.965207, 'Precision': 0.969201, 'Recall': 0.963011}
+2022/11/01 08:46:50 [INFO] main.469 checkpoint_20_2_epoch.pt Saved!
+2022/11/01 08:46:50 [INFO] main.472 Test metrics:0.965207 > max_metric!
+2022/11/01 08:46:52 [INFO] main.481 Best Model Saved!
+2022/11/01 08:51:03 [INFO] main.453 Train Epoch = 22 Loss:0.039372 Metrics:{'F1score': 0.997147, 'Precision': 0.99706, 'Recall': 0.99727}
+2022/11/01 08:51:12 [INFO] main.464 Eval Epoch = 22 Metrics:{'F1score': 0.960876, 'Precision': 0.965432, 'Recall': 0.958009}
+2022/11/01 08:55:22 [INFO] main.453 Train Epoch = 23 Loss:0.0381352 Metrics:{'F1score': 0.997953, 'Precision': 0.998157, 'Recall': 0.997761}
+2022/11/01 08:55:31 [INFO] main.464 Eval Epoch = 23 Metrics:{'F1score': 0.961608, 'Precision': 0.969166, 'Recall': 0.957059}
+2022/11/01 08:59:39 [INFO] main.453 Train Epoch = 24 Loss:0.0356679 Metrics:{'F1score': 0.998061, 'Precision': 0.998124, 'Recall': 0.998009}
+2022/11/01 08:59:49 [INFO] main.464 Eval Epoch = 24 Metrics:{'F1score': 0.960465, 'Precision': 0.966882, 'Recall': 0.956034}
+2022/11/01 09:03:57 [INFO] main.453 Train Epoch = 25 Loss:0.0327425 Metrics:{'F1score': 0.998471, 'Precision': 0.998543, 'Recall': 0.998409}
+2022/11/01 09:04:06 [INFO] main.464 Eval Epoch = 25 Metrics:{'F1score': 0.960053, 'Precision': 0.968128, 'Recall': 0.954164}
+2022/11/01 09:08:14 [INFO] main.453 Train Epoch = 26 Loss:0.0298223 Metrics:{'F1score': 0.998537, 'Precision': 0.998572, 'Recall': 0.998512}
+2022/11/01 09:08:22 [INFO] main.464 Eval Epoch = 26 Metrics:{'F1score': 0.954228, 'Precision': 0.955651, 'Recall': 0.955351}
+2022/11/01 09:12:30 [INFO] main.453 Train Epoch = 27 Loss:0.0279288 Metrics:{'F1score': 0.998358, 'Precision': 0.998344, 'Recall': 0.998384}
+2022/11/01 09:12:39 [INFO] main.464 Eval Epoch = 27 Metrics:{'F1score': 0.964362, 'Precision': 0.969314, 'Recall': 0.961587}
+2022/11/01 09:16:48 [INFO] main.453 Train Epoch = 28 Loss:0.0271201 Metrics:{'F1score': 0.998249, 'Precision': 0.998457, 'Recall': 0.998055}
+2022/11/01 09:16:57 [INFO] main.464 Eval Epoch = 28 Metrics:{'F1score': 0.954647, 'Precision': 0.959555, 'Recall': 0.953333}
+2022/11/01 09:21:05 [INFO] main.453 Train Epoch = 29 Loss:0.024982 Metrics:{'F1score': 0.998609, 'Precision': 0.998719, 'Recall': 0.998509}
+2022/11/01 09:21:13 [INFO] main.464 Eval Epoch = 29 Metrics:{'F1score': 0.960742, 'Precision': 0.964882, 'Recall': 0.95785}
+2022/11/01 09:25:22 [INFO] main.453 Train Epoch = 30 Loss:0.0229019 Metrics:{'F1score': 0.998787, 'Precision': 0.998964, 'Recall': 0.998617}
+2022/11/01 09:25:30 [INFO] main.464 Eval Epoch = 30 Metrics:{'F1score': 0.957372, 'Precision': 0.954726, 'Recall': 0.961906}
+2022/11/01 09:29:41 [INFO] main.453 Train Epoch = 31 Loss:0.0225934 Metrics:{'F1score': 0.999015, 'Precision': 0.999177, 'Recall': 0.998857}
+2022/11/01 09:29:50 [INFO] main.464 Eval Epoch = 31 Metrics:{'F1score': 0.95962, 'Precision': 0.964737, 'Recall': 0.956008}
+2022/11/01 09:29:50 [INFO] main.485 The Effect of last 10 epochs has not improved! Early Stop!
+2022/11/01 09:29:50 [INFO] main.486 Best Metric: 0.965207
+2022/11/01 09:29:55 [INFO] main.340 Start Training 3!
+2022/11/01 09:34:24 [INFO] main.453 Train Epoch = 1 Loss:2.15719 Metrics:{'F1score': 0.372006, 'Precision': 0.425331, 'Recall': 0.40363}
+2022/11/01 09:34:33 [INFO] main.464 Eval Epoch = 1 Metrics:{'F1score': 0.382193, 'Precision': 0.4322, 'Recall': 0.4132}
+2022/11/01 09:34:35 [INFO] main.469 checkpoint_0_3_epoch.pt Saved!
+2022/11/01 09:34:35 [INFO] main.472 Test metrics:0.382193 > max_metric!
+2022/11/01 09:34:36 [INFO] main.481 Best Model Saved!
+2022/11/01 09:38:45 [INFO] main.453 Train Epoch = 2 Loss:1.05348 Metrics:{'F1score': 0.834277, 'Precision': 0.88401, 'Recall': 0.816356}
+2022/11/01 09:38:54 [INFO] main.464 Eval Epoch = 2 Metrics:{'F1score': 0.773176, 'Precision': 0.819854, 'Recall': 0.762009}
+2022/11/01 09:38:54 [INFO] main.472 Test metrics:0.773176 > max_metric!
+2022/11/01 09:38:55 [INFO] main.481 Best Model Saved!
+2022/11/01 09:43:05 [INFO] main.453 Train Epoch = 3 Loss:0.637984 Metrics:{'F1score': 0.915961, 'Precision': 0.944051, 'Recall': 0.917301}
+2022/11/01 09:43:14 [INFO] main.464 Eval Epoch = 3 Metrics:{'F1score': 0.879268, 'Precision': 0.92406, 'Recall': 0.874479}
+2022/11/01 09:43:14 [INFO] main.472 Test metrics:0.879268 > max_metric!
+2022/11/01 09:43:15 [INFO] main.481 Best Model Saved!
+2022/11/01 09:47:26 [INFO] main.453 Train Epoch = 4 Loss:0.443236 Metrics:{'F1score': 0.947186, 'Precision': 0.955447, 'Recall': 0.944975}
+2022/11/01 09:47:34 [INFO] main.464 Eval Epoch = 4 Metrics:{'F1score': 0.898282, 'Precision': 0.930799, 'Recall': 0.889744}
+2022/11/01 09:47:34 [INFO] main.472 Test metrics:0.898282 > max_metric!
+2022/11/01 09:47:36 [INFO] main.481 Best Model Saved!
+2022/11/01 09:51:46 [INFO] main.453 Train Epoch = 5 Loss:0.336494 Metrics:{'F1score': 0.970711, 'Precision': 0.974905, 'Recall': 0.967333}
+2022/11/01 09:51:55 [INFO] main.464 Eval Epoch = 5 Metrics:{'F1score': 0.930655, 'Precision': 0.953236, 'Recall': 0.919198}
+2022/11/01 09:51:55 [INFO] main.472 Test metrics:0.930655 > max_metric!
+2022/11/01 09:51:56 [INFO] main.481 Best Model Saved!
+2022/11/01 09:56:05 [INFO] main.453 Train Epoch = 6 Loss:0.262473 Metrics:{'F1score': 0.975717, 'Precision': 0.973661, 'Recall': 0.978178}
+2022/11/01 09:56:14 [INFO] main.464 Eval Epoch = 6 Metrics:{'F1score': 0.940065, 'Precision': 0.94206, 'Recall': 0.944465}
+2022/11/01 09:56:14 [INFO] main.472 Test metrics:0.940065 > max_metric!
+2022/11/01 09:56:15 [INFO] main.481 Best Model Saved!
+2022/11/01 10:00:26 [INFO] main.453 Train Epoch = 7 Loss:0.21314 Metrics:{'F1score': 0.983457, 'Precision': 0.984396, 'Recall': 0.982683}
+2022/11/01 10:00:34 [INFO] main.464 Eval Epoch = 7 Metrics:{'F1score': 0.951016, 'Precision': 0.96056, 'Recall': 0.944677}
+2022/11/01 10:00:34 [INFO] main.472 Test metrics:0.951016 > max_metric!
+2022/11/01 10:00:36 [INFO] main.481 Best Model Saved!
+2022/11/01 10:04:46 [INFO] main.453 Train Epoch = 8 Loss:0.178172 Metrics:{'F1score': 0.984909, 'Precision': 0.984173, 'Recall': 0.985853}
+2022/11/01 10:04:55 [INFO] main.464 Eval Epoch = 8 Metrics:{'F1score': 0.950804, 'Precision': 0.952399, 'Recall': 0.951871}
+2022/11/01 10:09:10 [INFO] main.453 Train Epoch = 9 Loss:0.152475 Metrics:{'F1score': 0.99001, 'Precision': 0.989893, 'Recall': 0.990216}
+2022/11/01 10:09:19 [INFO] main.464 Eval Epoch = 9 Metrics:{'F1score': 0.960983, 'Precision': 0.966526, 'Recall': 0.956731}
+2022/11/01 10:09:19 [INFO] main.472 Test metrics:0.960983 > max_metric!
+2022/11/01 10:09:20 [INFO] main.481 Best Model Saved!
+2022/11/01 10:13:38 [INFO] main.453 Train Epoch = 10 Loss:0.131035 Metrics:{'F1score': 0.990059, 'Precision': 0.989686, 'Recall': 0.990524}
+2022/11/01 10:13:47 [INFO] main.464 Eval Epoch = 10 Metrics:{'F1score': 0.960963, 'Precision': 0.965678, 'Recall': 0.958328}
+2022/11/01 10:18:05 [INFO] main.453 Train Epoch = 11 Loss:0.11201 Metrics:{'F1score': 0.99177, 'Precision': 0.991079, 'Recall': 0.992565}
+2022/11/01 10:18:13 [INFO] main.464 Eval Epoch = 11 Metrics:{'F1score': 0.954896, 'Precision': 0.959023, 'Recall': 0.954772}
+2022/11/01 10:22:28 [INFO] main.453 Train Epoch = 12 Loss:0.0987161 Metrics:{'F1score': 0.991857, 'Precision': 0.991989, 'Recall': 0.991843}
+2022/11/01 10:22:38 [INFO] main.464 Eval Epoch = 12 Metrics:{'F1score': 0.961492, 'Precision': 0.961745, 'Recall': 0.962665}
+2022/11/01 10:22:38 [INFO] main.472 Test metrics:0.961492 > max_metric!
+2022/11/01 10:22:39 [INFO] main.481 Best Model Saved!
+2022/11/01 10:26:56 [INFO] main.453 Train Epoch = 13 Loss:0.090954 Metrics:{'F1score': 0.993257, 'Precision': 0.99319, 'Recall': 0.993378}
+2022/11/01 10:27:05 [INFO] main.464 Eval Epoch = 13 Metrics:{'F1score': 0.963344, 'Precision': 0.968104, 'Recall': 0.960628}
+2022/11/01 10:27:05 [INFO] main.472 Test metrics:0.963344 > max_metric!
+2022/11/01 10:27:07 [INFO] main.481 Best Model Saved!
+2022/11/01 10:31:22 [INFO] main.453 Train Epoch = 14 Loss:0.080406 Metrics:{'F1score': 0.99394, 'Precision': 0.994353, 'Recall': 0.993595}
+2022/11/01 10:31:31 [INFO] main.464 Eval Epoch = 14 Metrics:{'F1score': 0.957863, 'Precision': 0.965585, 'Recall': 0.952967}
+2022/11/01 10:35:46 [INFO] main.453 Train Epoch = 15 Loss:0.0746305 Metrics:{'F1score': 0.99265, 'Precision': 0.992301, 'Recall': 0.993044}
+2022/11/01 10:35:55 [INFO] main.464 Eval Epoch = 15 Metrics:{'F1score': 0.959892, 'Precision': 0.963972, 'Recall': 0.957723}
+2022/11/01 10:40:09 [INFO] main.453 Train Epoch = 16 Loss:0.0692804 Metrics:{'F1score': 0.994626, 'Precision': 0.994797, 'Recall': 0.994505}
+2022/11/01 10:40:18 [INFO] main.464 Eval Epoch = 16 Metrics:{'F1score': 0.957747, 'Precision': 0.959347, 'Recall': 0.957875}
+2022/11/01 10:44:33 [INFO] main.453 Train Epoch = 17 Loss:0.0628286 Metrics:{'F1score': 0.995336, 'Precision': 0.995576, 'Recall': 0.995141}
+2022/11/01 10:44:42 [INFO] main.464 Eval Epoch = 17 Metrics:{'F1score': 0.964948, 'Precision': 0.96608, 'Recall': 0.96496}
+2022/11/01 10:44:42 [INFO] main.472 Test metrics:0.964948 > max_metric!
+2022/11/01 10:44:43 [INFO] main.481 Best Model Saved!
+2022/11/01 10:48:59 [INFO] main.453 Train Epoch = 18 Loss:0.0570057 Metrics:{'F1score': 0.995302, 'Precision': 0.995921, 'Recall': 0.994749}
+2022/11/01 10:49:08 [INFO] main.464 Eval Epoch = 18 Metrics:{'F1score': 0.961647, 'Precision': 0.966177, 'Recall': 0.958631}
+2022/11/01 10:53:23 [INFO] main.453 Train Epoch = 19 Loss:0.0530338 Metrics:{'F1score': 0.995532, 'Precision': 0.995672, 'Recall': 0.995438}
+2022/11/01 10:53:31 [INFO] main.464 Eval Epoch = 19 Metrics:{'F1score': 0.958568, 'Precision': 0.964661, 'Recall': 0.954074}
+2022/11/01 10:57:47 [INFO] main.453 Train Epoch = 20 Loss:0.0506143 Metrics:{'F1score': 0.996748, 'Precision': 0.996932, 'Recall': 0.996585}
+2022/11/01 10:57:55 [INFO] main.464 Eval Epoch = 20 Metrics:{'F1score': 0.961541, 'Precision': 0.962519, 'Recall': 0.962496}
+2022/11/01 11:02:10 [INFO] main.453 Train Epoch = 21 Loss:0.045551 Metrics:{'F1score': 0.996305, 'Precision': 0.996434, 'Recall': 0.996203}
+2022/11/01 11:02:19 [INFO] main.464 Eval Epoch = 21 Metrics:{'F1score': 0.962904, 'Precision': 0.970215, 'Recall': 0.957298}
+2022/11/01 11:02:24 [INFO] main.469 checkpoint_20_3_epoch.pt Saved!
+2022/11/01 11:06:38 [INFO] main.453 Train Epoch = 22 Loss:0.0421641 Metrics:{'F1score': 0.996373, 'Precision': 0.997191, 'Recall': 0.995592}
+2022/11/01 11:06:47 [INFO] main.464 Eval Epoch = 22 Metrics:{'F1score': 0.960521, 'Precision': 0.967095, 'Recall': 0.956648}
+2022/11/01 11:11:01 [INFO] main.453 Train Epoch = 23 Loss:0.0372627 Metrics:{'F1score': 0.997478, 'Precision': 0.99789, 'Recall': 0.997078}
+2022/11/01 11:11:10 [INFO] main.464 Eval Epoch = 23 Metrics:{'F1score': 0.960961, 'Precision': 0.961532, 'Recall': 0.96185}
+2022/11/01 11:15:24 [INFO] main.453 Train Epoch = 24 Loss:0.0360358 Metrics:{'F1score': 0.9974, 'Precision': 0.997815, 'Recall': 0.997002}
+2022/11/01 11:15:33 [INFO] main.464 Eval Epoch = 24 Metrics:{'F1score': 0.965826, 'Precision': 0.971258, 'Recall': 0.961668}
+2022/11/01 11:15:33 [INFO] main.472 Test metrics:0.965826 > max_metric!
+2022/11/01 11:15:34 [INFO] main.481 Best Model Saved!
+2022/11/01 11:19:48 [INFO] main.453 Train Epoch = 25 Loss:0.0339457 Metrics:{'F1score': 0.997478, 'Precision': 0.997573, 'Recall': 0.997399}
+2022/11/01 11:19:57 [INFO] main.464 Eval Epoch = 25 Metrics:{'F1score': 0.963826, 'Precision': 0.966791, 'Recall': 0.962312}
+2022/11/01 11:24:10 [INFO] main.453 Train Epoch = 26 Loss:0.0316655 Metrics:{'F1score': 0.997871, 'Precision': 0.998209, 'Recall': 0.997547}
+2022/11/01 11:24:18 [INFO] main.464 Eval Epoch = 26 Metrics:{'F1score': 0.960924, 'Precision': 0.969339, 'Recall': 0.954306}
+2022/11/01 11:28:29 [INFO] main.453 Train Epoch = 27 Loss:0.0299238 Metrics:{'F1score': 0.997233, 'Precision': 0.997546, 'Recall': 0.996944}
+2022/11/01 11:28:37 [INFO] main.464 Eval Epoch = 27 Metrics:{'F1score': 0.958674, 'Precision': 0.961186, 'Recall': 0.957497}
+2022/11/01 11:32:47 [INFO] main.453 Train Epoch = 28 Loss:0.0279975 Metrics:{'F1score': 0.99844, 'Precision': 0.99879, 'Recall': 0.998098}
+2022/11/01 11:32:56 [INFO] main.464 Eval Epoch = 28 Metrics:{'F1score': 0.961312, 'Precision': 0.965739, 'Recall': 0.958537}
+2022/11/01 11:37:05 [INFO] main.453 Train Epoch = 29 Loss:0.025964 Metrics:{'F1score': 0.998148, 'Precision': 0.99814, 'Recall': 0.998169}
+2022/11/01 11:37:14 [INFO] main.464 Eval Epoch = 29 Metrics:{'F1score': 0.959911, 'Precision': 0.966382, 'Recall': 0.955696}
+2022/11/01 11:41:23 [INFO] main.453 Train Epoch = 30 Loss:0.0243677 Metrics:{'F1score': 0.997902, 'Precision': 0.997774, 'Recall': 0.998044}
+2022/11/01 11:41:31 [INFO] main.464 Eval Epoch = 30 Metrics:{'F1score': 0.962748, 'Precision': 0.961533, 'Recall': 0.965318}
+2022/11/01 11:45:40 [INFO] main.453 Train Epoch = 31 Loss:0.022902 Metrics:{'F1score': 0.998752, 'Precision': 0.999001, 'Recall': 0.998508}
+2022/11/01 11:45:49 [INFO] main.464 Eval Epoch = 31 Metrics:{'F1score': 0.962302, 'Precision': 0.966197, 'Recall': 0.960192}
+2022/11/01 11:49:57 [INFO] main.453 Train Epoch = 32 Loss:0.0217607 Metrics:{'F1score': 0.998782, 'Precision': 0.999041, 'Recall': 0.99853}
+2022/11/01 11:50:07 [INFO] main.464 Eval Epoch = 32 Metrics:{'F1score': 0.963382, 'Precision': 0.973105, 'Recall': 0.955929}
+2022/11/01 11:54:16 [INFO] main.453 Train Epoch = 33 Loss:0.0206079 Metrics:{'F1score': 0.998646, 'Precision': 0.9988, 'Recall': 0.998496}
+2022/11/01 11:54:24 [INFO] main.464 Eval Epoch = 33 Metrics:{'F1score': 0.96541, 'Precision': 0.962792, 'Recall': 0.969246}
+2022/11/01 11:58:34 [INFO] main.453 Train Epoch = 34 Loss:0.0189879 Metrics:{'F1score': 0.998752, 'Precision': 0.999048, 'Recall': 0.998465}
+2022/11/01 11:58:43 [INFO] main.464 Eval Epoch = 34 Metrics:{'F1score': 0.965002, 'Precision': 0.965019, 'Recall': 0.965973}
+2022/11/01 11:58:43 [INFO] main.485 The Effect of last 10 epochs has not improved! Early Stop!
+2022/11/01 11:58:43 [INFO] main.486 Best Metric: 0.965826
+2022/11/01 11:58:49 [INFO] main.340 Start Training 4!
+2022/11/01 12:03:18 [INFO] main.453 Train Epoch = 1 Loss:2.11909 Metrics:{'F1score': 0.463119, 'Precision': 0.500428, 'Recall': 0.484476}
+2022/11/01 12:03:27 [INFO] main.464 Eval Epoch = 1 Metrics:{'F1score': 0.471005, 'Precision': 0.506767, 'Recall': 0.493984}
+2022/11/01 12:03:30 [INFO] main.469 checkpoint_0_4_epoch.pt Saved!
+2022/11/01 12:03:30 [INFO] main.472 Test metrics:0.471005 > max_metric!
+2022/11/01 12:03:31 [INFO] main.481 Best Model Saved!
+2022/11/01 12:07:42 [INFO] main.453 Train Epoch = 2 Loss:0.996903 Metrics:{'F1score': 0.779226, 'Precision': 0.830769, 'Recall': 0.78007}
+2022/11/01 12:07:51 [INFO] main.464 Eval Epoch = 2 Metrics:{'F1score': 0.745764, 'Precision': 0.811238, 'Recall': 0.746247}
+2022/11/01 12:07:51 [INFO] main.472 Test metrics:0.745764 > max_metric!
+2022/11/01 12:07:52 [INFO] main.481 Best Model Saved!
+2022/11/01 12:12:01 [INFO] main.453 Train Epoch = 3 Loss:0.643829 Metrics:{'F1score': 0.918687, 'Precision': 0.939123, 'Recall': 0.912666}
+2022/11/01 12:12:10 [INFO] main.464 Eval Epoch = 3 Metrics:{'F1score': 0.88067, 'Precision': 0.931173, 'Recall': 0.872052}
+2022/11/01 12:12:10 [INFO] main.472 Test metrics:0.88067 > max_metric!
+2022/11/01 12:12:11 [INFO] main.481 Best Model Saved!
+2022/11/01 12:16:21 [INFO] main.453 Train Epoch = 4 Loss:0.444247 Metrics:{'F1score': 0.950498, 'Precision': 0.952556, 'Recall': 0.950952}
+2022/11/01 12:16:30 [INFO] main.464 Eval Epoch = 4 Metrics:{'F1score': 0.914773, 'Precision': 0.938837, 'Recall': 0.914667}
+2022/11/01 12:16:30 [INFO] main.472 Test metrics:0.914773 > max_metric!
+2022/11/01 12:16:31 [INFO] main.481 Best Model Saved!
+2022/11/01 12:20:44 [INFO] main.453 Train Epoch = 5 Loss:0.336897 Metrics:{'F1score': 0.96318, 'Precision': 0.963158, 'Recall': 0.964306}
+2022/11/01 12:20:53 [INFO] main.464 Eval Epoch = 5 Metrics:{'F1score': 0.921725, 'Precision': 0.943213, 'Recall': 0.922629}
+2022/11/01 12:20:53 [INFO] main.472 Test metrics:0.921725 > max_metric!
+2022/11/01 12:20:54 [INFO] main.481 Best Model Saved!
+2022/11/01 12:25:04 [INFO] main.453 Train Epoch = 6 Loss:0.263187 Metrics:{'F1score': 0.970613, 'Precision': 0.970413, 'Recall': 0.971487}
+2022/11/01 12:25:13 [INFO] main.464 Eval Epoch = 6 Metrics:{'F1score': 0.930188, 'Precision': 0.949552, 'Recall': 0.930547}
+2022/11/01 12:25:13 [INFO] main.472 Test metrics:0.930188 > max_metric!
+2022/11/01 12:25:14 [INFO] main.481 Best Model Saved!
+2022/11/01 12:29:23 [INFO] main.453 Train Epoch = 7 Loss:0.216175 Metrics:{'F1score': 0.977542, 'Precision': 0.976515, 'Recall': 0.979016}
+2022/11/01 12:29:31 [INFO] main.464 Eval Epoch = 7 Metrics:{'F1score': 0.928017, 'Precision': 0.942123, 'Recall': 0.933123}
+2022/11/01 12:33:42 [INFO] main.453 Train Epoch = 8 Loss:0.181073 Metrics:{'F1score': 0.983916, 'Precision': 0.983249, 'Recall': 0.984759}
+2022/11/01 12:33:51 [INFO] main.464 Eval Epoch = 8 Metrics:{'F1score': 0.944526, 'Precision': 0.953157, 'Recall': 0.945713}
+2022/11/01 12:33:51 [INFO] main.472 Test metrics:0.944526 > max_metric!
+2022/11/01 12:33:52 [INFO] main.481 Best Model Saved!
+2022/11/01 12:38:01 [INFO] main.453 Train Epoch = 9 Loss:0.152575 Metrics:{'F1score': 0.98401, 'Precision': 0.982887, 'Recall': 0.98536}
+2022/11/01 12:38:10 [INFO] main.464 Eval Epoch = 9 Metrics:{'F1score': 0.952804, 'Precision': 0.952358, 'Recall': 0.95548}
+2022/11/01 12:38:10 [INFO] main.472 Test metrics:0.952804 > max_metric!
+2022/11/01 12:38:11 [INFO] main.481 Best Model Saved!
+2022/11/01 12:42:21 [INFO] main.453 Train Epoch = 10 Loss:0.131978 Metrics:{'F1score': 0.988163, 'Precision': 0.987923, 'Recall': 0.988602}
+2022/11/01 12:42:30 [INFO] main.464 Eval Epoch = 10 Metrics:{'F1score': 0.967081, 'Precision': 0.966443, 'Recall': 0.968493}
+2022/11/01 12:42:30 [INFO] main.472 Test metrics:0.967081 > max_metric!
+2022/11/01 12:42:31 [INFO] main.481 Best Model Saved!
+2022/11/01 12:46:41 [INFO] main.453 Train Epoch = 11 Loss:0.116433 Metrics:{'F1score': 0.989093, 'Precision': 0.989179, 'Recall': 0.989124}
+2022/11/01 12:46:49 [INFO] main.464 Eval Epoch = 11 Metrics:{'F1score': 0.964615, 'Precision': 0.961779, 'Recall': 0.968068}
+2022/11/01 12:50:59 [INFO] main.453 Train Epoch = 12 Loss:0.102058 Metrics:{'F1score': 0.991004, 'Precision': 0.991103, 'Recall': 0.991007}
+2022/11/01 12:51:08 [INFO] main.464 Eval Epoch = 12 Metrics:{'F1score': 0.967818, 'Precision': 0.96914, 'Recall': 0.967381}
+2022/11/01 12:51:08 [INFO] main.472 Test metrics:0.967818 > max_metric!
+2022/11/01 12:51:09 [INFO] main.481 Best Model Saved!
+2022/11/01 12:55:19 [INFO] main.453 Train Epoch = 13 Loss:0.0904459 Metrics:{'F1score': 0.99303, 'Precision': 0.992309, 'Recall': 0.993818}
+2022/11/01 12:55:28 [INFO] main.464 Eval Epoch = 13 Metrics:{'F1score': 0.964068, 'Precision': 0.96102, 'Recall': 0.968264}
+2022/11/01 12:59:37 [INFO] main.453 Train Epoch = 14 Loss:0.0804899 Metrics:{'F1score': 0.994664, 'Precision': 0.994807, 'Recall': 0.994558}
+2022/11/01 12:59:46 [INFO] main.464 Eval Epoch = 14 Metrics:{'F1score': 0.973159, 'Precision': 0.975903, 'Recall': 0.971352}
+2022/11/01 12:59:46 [INFO] main.472 Test metrics:0.973159 > max_metric!
+2022/11/01 12:59:47 [INFO] main.481 Best Model Saved!
+2022/11/01 13:03:57 [INFO] main.453 Train Epoch = 15 Loss:0.0742256 Metrics:{'F1score': 0.993896, 'Precision': 0.993747, 'Recall': 0.99412}
+2022/11/01 13:04:06 [INFO] main.464 Eval Epoch = 15 Metrics:{'F1score': 0.96993, 'Precision': 0.9672, 'Recall': 0.973073}
+2022/11/01 13:08:17 [INFO] main.453 Train Epoch = 16 Loss:0.0677927 Metrics:{'F1score': 0.994459, 'Precision': 0.994155, 'Recall': 0.994813}
+2022/11/01 13:08:25 [INFO] main.464 Eval Epoch = 16 Metrics:{'F1score': 0.969047, 'Precision': 0.967078, 'Recall': 0.971583}
+2022/11/01 13:12:36 [INFO] main.453 Train Epoch = 17 Loss:0.0605934 Metrics:{'F1score': 0.995901, 'Precision': 0.995938, 'Recall': 0.995882}
+2022/11/01 13:12:45 [INFO] main.464 Eval Epoch = 17 Metrics:{'F1score': 0.970732, 'Precision': 0.969082, 'Recall': 0.972965}
+2022/11/01 13:16:56 [INFO] main.453 Train Epoch = 18 Loss:0.0557282 Metrics:{'F1score': 0.995904, 'Precision': 0.996302, 'Recall': 0.995545}
+2022/11/01 13:17:05 [INFO] main.464 Eval Epoch = 18 Metrics:{'F1score': 0.96546, 'Precision': 0.967479, 'Recall': 0.964797}
+2022/11/01 13:21:17 [INFO] main.453 Train Epoch = 19 Loss:0.0519964 Metrics:{'F1score': 0.996604, 'Precision': 0.996786, 'Recall': 0.996438}
+2022/11/01 13:21:25 [INFO] main.464 Eval Epoch = 19 Metrics:{'F1score': 0.969392, 'Precision': 0.970006, 'Recall': 0.969612}
+2022/11/01 13:25:35 [INFO] main.453 Train Epoch = 20 Loss:0.0488875 Metrics:{'F1score': 0.996433, 'Precision': 0.996388, 'Recall': 0.99652}
+2022/11/01 13:25:44 [INFO] main.464 Eval Epoch = 20 Metrics:{'F1score': 0.96607, 'Precision': 0.965616, 'Recall': 0.967745}
+2022/11/01 13:29:55 [INFO] main.453 Train Epoch = 21 Loss:0.0449018 Metrics:{'F1score': 0.996858, 'Precision': 0.997084, 'Recall': 0.996653}
+2022/11/01 13:30:06 [INFO] main.464 Eval Epoch = 21 Metrics:{'F1score': 0.965435, 'Precision': 0.965756, 'Recall': 0.966207}
+2022/11/01 13:30:09 [INFO] main.469 checkpoint_20_4_epoch.pt Saved!
+2022/11/01 13:34:19 [INFO] main.453 Train Epoch = 22 Loss:0.0411533 Metrics:{'F1score': 0.997227, 'Precision': 0.997493, 'Recall': 0.996978}
+2022/11/01 13:34:28 [INFO] main.464 Eval Epoch = 22 Metrics:{'F1score': 0.973832, 'Precision': 0.975174, 'Recall': 0.973054}
+2022/11/01 13:34:28 [INFO] main.472 Test metrics:0.973832 > max_metric!
+2022/11/01 13:34:29 [INFO] main.481 Best Model Saved!
+2022/11/01 13:38:40 [INFO] main.453 Train Epoch = 23 Loss:0.0378497 Metrics:{'F1score': 0.997317, 'Precision': 0.997454, 'Recall': 0.997195}
+2022/11/01 13:38:49 [INFO] main.464 Eval Epoch = 23 Metrics:{'F1score': 0.973203, 'Precision': 0.972468, 'Recall': 0.974688}
+2022/11/01 13:43:00 [INFO] main.453 Train Epoch = 24 Loss:0.0369536 Metrics:{'F1score': 0.996903, 'Precision': 0.996852, 'Recall': 0.996979}
+2022/11/01 13:43:08 [INFO] main.464 Eval Epoch = 24 Metrics:{'F1score': 0.971586, 'Precision': 0.967856, 'Recall': 0.976195}
+2022/11/01 13:47:18 [INFO] main.453 Train Epoch = 25 Loss:0.0334184 Metrics:{'F1score': 0.997595, 'Precision': 0.997939, 'Recall': 0.997275}
+2022/11/01 13:47:27 [INFO] main.464 Eval Epoch = 25 Metrics:{'F1score': 0.971382, 'Precision': 0.970866, 'Recall': 0.972923}
+2022/11/01 13:51:39 [INFO] main.453 Train Epoch = 26 Loss:0.0315285 Metrics:{'F1score': 0.997507, 'Precision': 0.997671, 'Recall': 0.997369}
+2022/11/01 13:51:48 [INFO] main.464 Eval Epoch = 26 Metrics:{'F1score': 0.973547, 'Precision': 0.972837, 'Recall': 0.974816}
+2022/11/01 13:56:00 [INFO] main.453 Train Epoch = 27 Loss:0.0310699 Metrics:{'F1score': 0.997668, 'Precision': 0.997808, 'Recall': 0.99755}
+2022/11/01 13:56:09 [INFO] main.464 Eval Epoch = 27 Metrics:{'F1score': 0.969715, 'Precision': 0.967733, 'Recall': 0.972374}
+2022/11/01 14:00:20 [INFO] main.453 Train Epoch = 28 Loss:0.0282546 Metrics:{'F1score': 0.997789, 'Precision': 0.998246, 'Recall': 0.997351}
+2022/11/01 14:00:29 [INFO] main.464 Eval Epoch = 28 Metrics:{'F1score': 0.97174, 'Precision': 0.972462, 'Recall': 0.971676}
+2022/11/01 14:04:37 [INFO] main.453 Train Epoch = 29 Loss:0.0268625 Metrics:{'F1score': 0.998315, 'Precision': 0.998503, 'Recall': 0.998144}
+2022/11/01 14:04:46 [INFO] main.464 Eval Epoch = 29 Metrics:{'F1score': 0.974961, 'Precision': 0.974423, 'Recall': 0.975903}
+2022/11/01 14:04:46 [INFO] main.472 Test metrics:0.974961 > max_metric!
+2022/11/01 14:04:47 [INFO] main.481 Best Model Saved!
+2022/11/01 14:08:56 [INFO] main.453 Train Epoch = 30 Loss:0.0247461 Metrics:{'F1score': 0.998218, 'Precision': 0.998423, 'Recall': 0.998029}
+2022/11/01 14:09:05 [INFO] main.464 Eval Epoch = 30 Metrics:{'F1score': 0.971361, 'Precision': 0.972119, 'Recall': 0.97193}
+2022/11/01 14:13:15 [INFO] main.453 Train Epoch = 31 Loss:0.023722 Metrics:{'F1score': 0.998075, 'Precision': 0.998307, 'Recall': 0.997856}
+2022/11/01 14:13:24 [INFO] main.464 Eval Epoch = 31 Metrics:{'F1score': 0.971874, 'Precision': 0.972353, 'Recall': 0.972327}
+2022/11/01 14:17:34 [INFO] main.453 Train Epoch = 32 Loss:0.0228058 Metrics:{'F1score': 0.99809, 'Precision': 0.998447, 'Recall': 0.997753}
+2022/11/01 14:17:43 [INFO] main.464 Eval Epoch = 32 Metrics:{'F1score': 0.970474, 'Precision': 0.974722, 'Recall': 0.968301}
+2022/11/01 14:21:55 [INFO] main.453 Train Epoch = 33 Loss:0.021328 Metrics:{'F1score': 0.998606, 'Precision': 0.99891, 'Recall': 0.998314}
+2022/11/01 14:22:04 [INFO] main.464 Eval Epoch = 33 Metrics:{'F1score': 0.970591, 'Precision': 0.970324, 'Recall': 0.971313}
+2022/11/01 14:26:15 [INFO] main.453 Train Epoch = 34 Loss:0.019723 Metrics:{'F1score': 0.998839, 'Precision': 0.9991, 'Recall': 0.998588}
+2022/11/01 14:26:24 [INFO] main.464 Eval Epoch = 34 Metrics:{'F1score': 0.972292, 'Precision': 0.974091, 'Recall': 0.971359}
+2022/11/01 14:30:34 [INFO] main.453 Train Epoch = 35 Loss:0.0183653 Metrics:{'F1score': 0.998972, 'Precision': 0.999067, 'Recall': 0.998881}
+2022/11/01 14:30:43 [INFO] main.464 Eval Epoch = 35 Metrics:{'F1score': 0.970592, 'Precision': 0.970527, 'Recall': 0.971443}
+2022/11/01 14:34:54 [INFO] main.453 Train Epoch = 36 Loss:0.0181259 Metrics:{'F1score': 0.999137, 'Precision': 0.999423, 'Recall': 0.998855}
+2022/11/01 14:35:04 [INFO] main.464 Eval Epoch = 36 Metrics:{'F1score': 0.976503, 'Precision': 0.97791, 'Recall': 0.97555}
+2022/11/01 14:35:04 [INFO] main.472 Test metrics:0.976503 > max_metric!
+2022/11/01 14:35:05 [INFO] main.481 Best Model Saved!
+2022/11/01 14:39:14 [INFO] main.453 Train Epoch = 37 Loss:0.0168514 Metrics:{'F1score': 0.998122, 'Precision': 0.998354, 'Recall': 0.99792}
+2022/11/01 14:39:23 [INFO] main.464 Eval Epoch = 37 Metrics:{'F1score': 0.950334, 'Precision': 0.964857, 'Recall': 0.954679}
+2022/11/01 14:43:34 [INFO] main.453 Train Epoch = 38 Loss:0.0162377 Metrics:{'F1score': 0.999137, 'Precision': 0.999423, 'Recall': 0.998855}
+2022/11/01 14:43:42 [INFO] main.464 Eval Epoch = 38 Metrics:{'F1score': 0.97519, 'Precision': 0.979223, 'Recall': 0.972036}
+2022/11/01 14:47:54 [INFO] main.453 Train Epoch = 39 Loss:0.0146349 Metrics:{'F1score': 0.999369, 'Precision': 0.999403, 'Recall': 0.999339}
+2022/11/01 14:48:03 [INFO] main.464 Eval Epoch = 39 Metrics:{'F1score': 0.977998, 'Precision': 0.979184, 'Recall': 0.977332}
+2022/11/01 14:48:03 [INFO] main.472 Test metrics:0.977998 > max_metric!
+2022/11/01 14:48:04 [INFO] main.481 Best Model Saved!
+2022/11/01 14:52:13 [INFO] main.453 Train Epoch = 40 Loss:0.0139055 Metrics:{'F1score': 0.999519, 'Precision': 0.999651, 'Recall': 0.999389}
+2022/11/01 14:52:22 [INFO] main.464 Eval Epoch = 40 Metrics:{'F1score': 0.975065, 'Precision': 0.973503, 'Recall': 0.977268}
+2022/11/01 14:56:33 [INFO] main.453 Train Epoch = 41 Loss:0.0129301 Metrics:{'F1score': 0.999422, 'Precision': 0.999501, 'Recall': 0.999345}
+2022/11/01 14:56:42 [INFO] main.464 Eval Epoch = 41 Metrics:{'F1score': 0.9731, 'Precision': 0.972377, 'Recall': 0.974406}
+2022/11/01 14:56:45 [INFO] main.469 checkpoint_40_4_epoch.pt Saved!
+2022/11/01 15:00:56 [INFO] main.453 Train Epoch = 42 Loss:0.0127293 Metrics:{'F1score': 0.99934, 'Precision': 0.999403, 'Recall': 0.999281}
+2022/11/01 15:01:05 [INFO] main.464 Eval Epoch = 42 Metrics:{'F1score': 0.970622, 'Precision': 0.967436, 'Recall': 0.974949}
+2022/11/01 15:05:17 [INFO] main.453 Train Epoch = 43 Loss:0.0119301 Metrics:{'F1score': 0.999609, 'Precision': 0.99981, 'Recall': 0.999409}
+2022/11/01 15:05:26 [INFO] main.464 Eval Epoch = 43 Metrics:{'F1score': 0.974943, 'Precision': 0.972686, 'Recall': 0.978183}
+2022/11/01 15:09:34 [INFO] main.453 Train Epoch = 44 Loss:0.0115639 Metrics:{'F1score': 0.999555, 'Precision': 0.999719, 'Recall': 0.999394}
+2022/11/01 15:09:43 [INFO] main.464 Eval Epoch = 44 Metrics:{'F1score': 0.976198, 'Precision': 0.976036, 'Recall': 0.977241}
+2022/11/01 15:13:53 [INFO] main.453 Train Epoch = 45 Loss:0.0106866 Metrics:{'F1score': 0.999407, 'Precision': 0.999488, 'Recall': 0.99933}
+2022/11/01 15:14:02 [INFO] main.464 Eval Epoch = 45 Metrics:{'F1score': 0.970828, 'Precision': 0.966852, 'Recall': 0.975408}
+2022/11/01 15:18:11 [INFO] main.453 Train Epoch = 46 Loss:0.0113291 Metrics:{'F1score': 0.999686, 'Precision': 0.999767, 'Recall': 0.999607}
+2022/11/01 15:18:20 [INFO] main.464 Eval Epoch = 46 Metrics:{'F1score': 0.973002, 'Precision': 0.971445, 'Recall': 0.975012}
+2022/11/01 15:22:30 [INFO] main.453 Train Epoch = 47 Loss:0.00993682 Metrics:{'F1score': 0.999773, 'Precision': 0.999875, 'Recall': 0.999672}
+2022/11/01 15:22:39 [INFO] main.464 Eval Epoch = 47 Metrics:{'F1score': 0.977089, 'Precision': 0.976346, 'Recall': 0.97841}
+2022/11/01 15:26:48 [INFO] main.453 Train Epoch = 48 Loss:0.00966133 Metrics:{'F1score': 0.999773, 'Precision': 0.999875, 'Recall': 0.999672}
+2022/11/01 15:26:57 [INFO] main.464 Eval Epoch = 48 Metrics:{'F1score': 0.971439, 'Precision': 0.973048, 'Recall': 0.9708}
+2022/11/01 15:31:08 [INFO] main.453 Train Epoch = 49 Loss:0.0091297 Metrics:{'F1score': 0.999773, 'Precision': 0.999875, 'Recall': 0.999672}
+2022/11/01 15:31:16 [INFO] main.464 Eval Epoch = 49 Metrics:{'F1score': 0.971426, 'Precision': 0.968261, 'Recall': 0.975198}
+2022/11/01 15:31:16 [INFO] main.485 The Effect of last 10 epochs has not improved! Early Stop!
+2022/11/01 15:31:16 [INFO] main.486 Best Metric: 0.977998
+2022/11/01 15:31:22 [INFO] main.340 Start Training 5!
+2022/11/01 15:35:54 [INFO] main.453 Train Epoch = 1 Loss:2.22563 Metrics:{'F1score': 0.423592, 'Precision': 0.485514, 'Recall': 0.442296}
+2022/11/01 15:36:02 [INFO] main.464 Eval Epoch = 1 Metrics:{'F1score': 0.437904, 'Precision': 0.493958, 'Recall': 0.45133}
+2022/11/01 15:36:06 [INFO] main.469 checkpoint_0_5_epoch.pt Saved!
+2022/11/01 15:36:06 [INFO] main.472 Test metrics:0.437904 > max_metric!
+2022/11/01 15:36:07 [INFO] main.481 Best Model Saved!
+2022/11/01 15:40:17 [INFO] main.453 Train Epoch = 2 Loss:1.04786 Metrics:{'F1score': 0.775111, 'Precision': 0.841454, 'Recall': 0.769525}
+2022/11/01 15:40:26 [INFO] main.464 Eval Epoch = 2 Metrics:{'F1score': 0.768133, 'Precision': 0.839986, 'Recall': 0.765825}
+2022/11/01 15:40:26 [INFO] main.472 Test metrics:0.768133 > max_metric!
+2022/11/01 15:40:27 [INFO] main.481 Best Model Saved!
+2022/11/01 15:44:35 [INFO] main.453 Train Epoch = 3 Loss:0.650146 Metrics:{'F1score': 0.90176, 'Precision': 0.931415, 'Recall': 0.901998}
+2022/11/01 15:44:44 [INFO] main.464 Eval Epoch = 3 Metrics:{'F1score': 0.912125, 'Precision': 0.943361, 'Recall': 0.910774}
+2022/11/01 15:44:44 [INFO] main.472 Test metrics:0.912125 > max_metric!
+2022/11/01 15:44:45 [INFO] main.481 Best Model Saved!
+2022/11/01 15:48:56 [INFO] main.453 Train Epoch = 4 Loss:0.456389 Metrics:{'F1score': 0.950695, 'Precision': 0.95545, 'Recall': 0.950156}
+2022/11/01 15:49:04 [INFO] main.464 Eval Epoch = 4 Metrics:{'F1score': 0.949178, 'Precision': 0.956689, 'Recall': 0.946095}
+2022/11/01 15:49:04 [INFO] main.472 Test metrics:0.949178 > max_metric!
+2022/11/01 15:49:05 [INFO] main.481 Best Model Saved!
+2022/11/01 15:53:14 [INFO] main.453 Train Epoch = 5 Loss:0.344875 Metrics:{'F1score': 0.967248, 'Precision': 0.968254, 'Recall': 0.967126}
+2022/11/01 15:53:23 [INFO] main.464 Eval Epoch = 5 Metrics:{'F1score': 0.955292, 'Precision': 0.961729, 'Recall': 0.95201}
+2022/11/01 15:53:23 [INFO] main.472 Test metrics:0.955292 > max_metric!
+2022/11/01 15:53:24 [INFO] main.481 Best Model Saved!
+2022/11/01 15:57:32 [INFO] main.453 Train Epoch = 6 Loss:0.266932 Metrics:{'F1score': 0.974828, 'Precision': 0.975874, 'Recall': 0.974262}
+2022/11/01 15:57:41 [INFO] main.464 Eval Epoch = 6 Metrics:{'F1score': 0.953279, 'Precision': 0.95991, 'Recall': 0.949636}
+2022/11/01 16:01:50 [INFO] main.453 Train Epoch = 7 Loss:0.219348 Metrics:{'F1score': 0.981909, 'Precision': 0.982165, 'Recall': 0.982064}
+2022/11/01 16:01:59 [INFO] main.464 Eval Epoch = 7 Metrics:{'F1score': 0.959864, 'Precision': 0.965126, 'Recall': 0.956841}
+2022/11/01 16:01:59 [INFO] main.472 Test metrics:0.959864 > max_metric!
+2022/11/01 16:01:59 [INFO] main.481 Best Model Saved!
+2022/11/01 16:06:08 [INFO] main.453 Train Epoch = 8 Loss:0.182128 Metrics:{'F1score': 0.986543, 'Precision': 0.98696, 'Recall': 0.986308}
+2022/11/01 16:06:17 [INFO] main.464 Eval Epoch = 8 Metrics:{'F1score': 0.961403, 'Precision': 0.964448, 'Recall': 0.959535}
+2022/11/01 16:06:17 [INFO] main.472 Test metrics:0.961403 > max_metric!
+2022/11/01 16:06:18 [INFO] main.481 Best Model Saved!
+2022/11/01 16:10:26 [INFO] main.453 Train Epoch = 9 Loss:0.154843 Metrics:{'F1score': 0.988548, 'Precision': 0.988238, 'Recall': 0.989084}
+2022/11/01 16:10:35 [INFO] main.464 Eval Epoch = 9 Metrics:{'F1score': 0.964309, 'Precision': 0.965024, 'Recall': 0.964533}
+2022/11/01 16:10:35 [INFO] main.472 Test metrics:0.964309 > max_metric!
+2022/11/01 16:10:36 [INFO] main.481 Best Model Saved!
+2022/11/01 16:14:44 [INFO] main.453 Train Epoch = 10 Loss:0.135003 Metrics:{'F1score': 0.985631, 'Precision': 0.984405, 'Recall': 0.987259}
+2022/11/01 16:14:53 [INFO] main.464 Eval Epoch = 10 Metrics:{'F1score': 0.959159, 'Precision': 0.959775, 'Recall': 0.960751}
+2022/11/01 16:19:02 [INFO] main.453 Train Epoch = 11 Loss:0.118037 Metrics:{'F1score': 0.989563, 'Precision': 0.989736, 'Recall': 0.989652}
+2022/11/01 16:19:11 [INFO] main.464 Eval Epoch = 11 Metrics:{'F1score': 0.963423, 'Precision': 0.966404, 'Recall': 0.961643}
+2022/11/01 16:23:19 [INFO] main.453 Train Epoch = 12 Loss:0.105017 Metrics:{'F1score': 0.992305, 'Precision': 0.992996, 'Recall': 0.991747}
+2022/11/01 16:23:28 [INFO] main.464 Eval Epoch = 12 Metrics:{'F1score': 0.965791, 'Precision': 0.969878, 'Recall': 0.963101}
+2022/11/01 16:23:28 [INFO] main.472 Test metrics:0.965791 > max_metric!
+2022/11/01 16:23:29 [INFO] main.481 Best Model Saved!
+2022/11/01 16:27:38 [INFO] main.453 Train Epoch = 13 Loss:0.0925698 Metrics:{'F1score': 0.992292, 'Precision': 0.991636, 'Recall': 0.993064}
+2022/11/01 16:27:46 [INFO] main.464 Eval Epoch = 13 Metrics:{'F1score': 0.964612, 'Precision': 0.963672, 'Recall': 0.966977}
+2022/11/01 16:31:56 [INFO] main.453 Train Epoch = 14 Loss:0.0842862 Metrics:{'F1score': 0.994286, 'Precision': 0.994823, 'Recall': 0.993829}
+2022/11/01 16:32:05 [INFO] main.464 Eval Epoch = 14 Metrics:{'F1score': 0.966923, 'Precision': 0.969579, 'Recall': 0.965591}
+2022/11/01 16:32:05 [INFO] main.472 Test metrics:0.966923 > max_metric!
+2022/11/01 16:32:06 [INFO] main.481 Best Model Saved!
+2022/11/01 16:36:15 [INFO] main.453 Train Epoch = 15 Loss:0.0784226 Metrics:{'F1score': 0.994504, 'Precision': 0.994986, 'Recall': 0.994109}
+2022/11/01 16:36:23 [INFO] main.464 Eval Epoch = 15 Metrics:{'F1score': 0.970464, 'Precision': 0.973871, 'Recall': 0.96796}
+2022/11/01 16:36:23 [INFO] main.472 Test metrics:0.970464 > max_metric!
+2022/11/01 16:36:24 [INFO] main.481 Best Model Saved!
+2022/11/01 16:40:33 [INFO] main.453 Train Epoch = 16 Loss:0.0699042 Metrics:{'F1score': 0.994201, 'Precision': 0.994208, 'Recall': 0.994276}
+2022/11/01 16:40:42 [INFO] main.464 Eval Epoch = 16 Metrics:{'F1score': 0.965482, 'Precision': 0.96919, 'Recall': 0.963095}
+2022/11/01 16:44:50 [INFO] main.453 Train Epoch = 17 Loss:0.0635309 Metrics:{'F1score': 0.994956, 'Precision': 0.995176, 'Recall': 0.994789}
+2022/11/01 16:44:59 [INFO] main.464 Eval Epoch = 17 Metrics:{'F1score': 0.966312, 'Precision': 0.967384, 'Recall': 0.966228}
+2022/11/01 16:49:07 [INFO] main.453 Train Epoch = 18 Loss:0.0600612 Metrics:{'F1score': 0.995936, 'Precision': 0.996273, 'Recall': 0.995636}
+2022/11/01 16:49:16 [INFO] main.464 Eval Epoch = 18 Metrics:{'F1score': 0.972853, 'Precision': 0.974149, 'Recall': 0.972051}
+2022/11/01 16:49:16 [INFO] main.472 Test metrics:0.972853 > max_metric!
+2022/11/01 16:49:17 [INFO] main.481 Best Model Saved!
+2022/11/01 16:53:26 [INFO] main.453 Train Epoch = 19 Loss:0.0550031 Metrics:{'F1score': 0.996454, 'Precision': 0.996554, 'Recall': 0.996383}
+2022/11/01 16:53:35 [INFO] main.464 Eval Epoch = 19 Metrics:{'F1score': 0.962469, 'Precision': 0.958649, 'Recall': 0.967688}
+2022/11/01 16:57:44 [INFO] main.453 Train Epoch = 20 Loss:0.05094 Metrics:{'F1score': 0.996859, 'Precision': 0.997492, 'Recall': 0.996257}
+2022/11/01 16:57:53 [INFO] main.464 Eval Epoch = 20 Metrics:{'F1score': 0.970864, 'Precision': 0.975745, 'Recall': 0.966952}
+2022/11/01 17:02:01 [INFO] main.453 Train Epoch = 21 Loss:0.0456918 Metrics:{'F1score': 0.997043, 'Precision': 0.997703, 'Recall': 0.996406}
+2022/11/01 17:02:10 [INFO] main.464 Eval Epoch = 21 Metrics:{'F1score': 0.970634, 'Precision': 0.967477, 'Recall': 0.974533}
+2022/11/01 17:02:14 [INFO] main.469 checkpoint_20_5_epoch.pt Saved!
+2022/11/01 17:06:25 [INFO] main.453 Train Epoch = 22 Loss:0.0437399 Metrics:{'F1score': 0.997093, 'Precision': 0.997663, 'Recall': 0.996553}
+2022/11/01 17:06:34 [INFO] main.464 Eval Epoch = 22 Metrics:{'F1score': 0.969765, 'Precision': 0.97525, 'Recall': 0.965126}
+2022/11/01 17:10:44 [INFO] main.453 Train Epoch = 23 Loss:0.0401521 Metrics:{'F1score': 0.997685, 'Precision': 0.997858, 'Recall': 0.997527}
+2022/11/01 17:10:52 [INFO] main.464 Eval Epoch = 23 Metrics:{'F1score': 0.970689, 'Precision': 0.970027, 'Recall': 0.972131}
+2022/11/01 17:15:02 [INFO] main.453 Train Epoch = 24 Loss:0.037584 Metrics:{'F1score': 0.997393, 'Precision': 0.997321, 'Recall': 0.997486}
+2022/11/01 17:15:11 [INFO] main.464 Eval Epoch = 24 Metrics:{'F1score': 0.966367, 'Precision': 0.970596, 'Recall': 0.963976}
+2022/11/01 17:19:19 [INFO] main.453 Train Epoch = 25 Loss:0.0350007 Metrics:{'F1score': 0.997462, 'Precision': 0.997346, 'Recall': 0.997603}
+2022/11/01 17:19:28 [INFO] main.464 Eval Epoch = 25 Metrics:{'F1score': 0.968942, 'Precision': 0.968173, 'Recall': 0.970449}
+2022/11/01 17:23:38 [INFO] main.453 Train Epoch = 26 Loss:0.0321328 Metrics:{'F1score': 0.998211, 'Precision': 0.998484, 'Recall': 0.997954}
+2022/11/01 17:23:47 [INFO] main.464 Eval Epoch = 26 Metrics:{'F1score': 0.963754, 'Precision': 0.965439, 'Recall': 0.96341}
+2022/11/01 17:27:57 [INFO] main.453 Train Epoch = 27 Loss:0.0294596 Metrics:{'F1score': 0.997475, 'Precision': 0.997322, 'Recall': 0.997647}
+2022/11/01 17:28:05 [INFO] main.464 Eval Epoch = 27 Metrics:{'F1score': 0.96444, 'Precision': 0.960299, 'Recall': 0.970778}
+2022/11/01 17:32:15 [INFO] main.453 Train Epoch = 28 Loss:0.027475 Metrics:{'F1score': 0.997801, 'Precision': 0.99768, 'Recall': 0.99794}
+2022/11/01 17:32:24 [INFO] main.464 Eval Epoch = 28 Metrics:{'F1score': 0.967391, 'Precision': 0.966104, 'Recall': 0.969326}
+2022/11/01 17:32:24 [INFO] main.485 The Effect of last 10 epochs has not improved! Early Stop!
+2022/11/01 17:32:24 [INFO] main.486 Best Metric: 0.972853
+2022/11/01 17:34:09 [INFO] main.93 Log is ready!
+2022/11/01 17:34:09 [INFO] main.94 Namespace(K=5, awp=-1, batch=512, bert='pretrained/nghuyong/ernie-3.0-base-zh', board=False, cb=False, cbntr=False, checkpoint=0, data_file='expand_train_aug_tail.json', data_folder_dir='fewshot', datetime='2022_11_01_04_26_32', db=False, dbfl=False, dropout=0.3, early_stop=10, ema=0.0, en=False, epoch=50, feature_layer=4, fgm=False, fl=False, freeze=0, gpu=['9', '10', '11', '12'], label=36, load=False, load_pt=None, lr=2e-05, mixif=False, model='model1', ntrfl=False, pgd=0, predict=False, predict_with_score=False, rdrop=0.0, rfl=False, save=False, sce=False, seed=42, split_test_ratio=0.2, swa=False, test=True, train=False, warmup=0.0)
+2022/11/01 17:34:09 [INFO] main.105 GPU:9,10,11,12
+2022/11/01 17:34:09 [INFO] main.116 Seed:42
+2022/11/01 17:34:10 [INFO] main.147 Read data: ./data/fewshot/expand_train_aug_tail.json
+2022/11/01 17:34:10 [INFO] main.505 Start evaluate!
+2022/11/01 17:34:44 [INFO] main.531 best_1.pt Loaded!
+2022/11/01 17:35:45 [INFO] main.568 Metrics for best_1.pt : {'F1score': 0.975097, 'Precision': 0.974504, 'Recall': 0.976222}
+2022/11/01 17:35:50 [INFO] main.531 best_2.pt Loaded!
+2022/11/01 17:36:36 [INFO] main.568 Metrics for best_2.pt : {'F1score': 0.990986, 'Precision': 0.992032, 'Recall': 0.990073}
+2022/11/01 17:36:43 [INFO] main.531 best_3.pt Loaded!
+2022/11/01 17:37:29 [INFO] main.568 Metrics for best_3.pt : {'F1score': 0.991184, 'Precision': 0.992501, 'Recall': 0.989925}
+2022/11/01 17:37:34 [INFO] main.531 best_4.pt Loaded!
+2022/11/01 17:38:20 [INFO] main.568 Metrics for best_4.pt : {'F1score': 0.995103, 'Precision': 0.995306, 'Recall': 0.994923}
+2022/11/01 17:38:27 [INFO] main.531 best_5.pt Loaded!
+2022/11/01 17:39:12 [INFO] main.568 Metrics for best_5.pt : {'F1score': 0.991349, 'Precision': 0.991807, 'Recall': 0.990929}
+2022/11/01 17:39:13 [INFO] main.574 Metrics for all model : {'F1score': 0.997956, 'Precision': 0.99828, 'Recall': 0.997645}
+2022/11/01 17:40:52 [INFO] main.93 Log is ready!
+2022/11/01 17:40:52 [INFO] main.94 Namespace(K=5, awp=-1, batch=512, bert='pretrained/nghuyong/ernie-3.0-base-zh', board=False, cb=False, cbntr=False, checkpoint=0, data_file='testA.json', data_folder_dir='fewshot', datetime='2022_11_01_04_26_32', db=False, dbfl=False, dropout=0.3, early_stop=10, ema=0.0, en=False, epoch=50, feature_layer=4, fgm=False, fl=False, freeze=0, gpu=['9', '10', '11', '12'], label=36, load=False, load_pt=None, lr=2e-05, mixif=False, model='model1', ntrfl=False, pgd=0, predict=True, predict_with_score=False, rdrop=0.0, rfl=False, save=False, sce=False, seed=42, split_test_ratio=0.2, swa=False, test=False, train=False, warmup=0.0)
+2022/11/01 17:40:52 [INFO] main.105 GPU:9,10,11,12
+2022/11/01 17:40:52 [INFO] main.116 Seed:42
+2022/11/01 17:40:53 [INFO] main.147 Read data: ./data/fewshot/testA.json
+2022/11/01 17:40:53 [INFO] main.505 Start evaluate!
+2022/11/01 17:41:26 [INFO] main.531 best_1.pt Loaded!
+2022/11/01 17:42:36 [INFO] main.531 best_2.pt Loaded!
+2022/11/01 17:43:31 [INFO] main.531 best_3.pt Loaded!
+2022/11/01 17:44:27 [INFO] main.531 best_4.pt Loaded!
+2022/11/01 17:45:27 [INFO] main.531 best_5.pt Loaded!
+2022/11/01 17:46:20 [INFO] main.588 Predict Finished!
