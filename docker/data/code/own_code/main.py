@@ -63,6 +63,7 @@ parser.add_argument('--assignee', action='store_true', help='whether to not use 
 
 parser.add_argument('--K', type=int, default=1, help='K-fold')
 parser.add_argument('--K_stop', type=int, default=1, help='Where to stop')
+parser.add_argument('--fp32', action='store_true', help='not store fp16')
 parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
 
 parser.add_argument('--awp', type=int, default=-1, help='AWP attack start epoch')
@@ -483,8 +484,11 @@ def train(args,data):
                         torch.optim.swa_utils.update_bn(train_loader, swa_model, device='cuda')
                         torch.save(swa_model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
                     else:
-                        model2 = copy.deepcopy(model)
-                        torch.save(model2.half().state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                        if args.fp32:
+                            torch.save(model.state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
+                        else:
+                            model2 = copy.deepcopy(model)
+                            torch.save(model2.half().state_dict(), MODEL_PATH + 'best_{}.pt'.format(K))
                     logging.info(f'Best Model Saved!')
             else:
                 early_stop_sign.append(1)
