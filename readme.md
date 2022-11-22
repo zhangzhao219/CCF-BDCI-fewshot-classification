@@ -25,12 +25,12 @@ B榜 0.59547145，9/108
 
 - 公开数据：仅使用官方训练集及部分官方A榜测试集（伪标签）进行模型训练，未使用任何外部数据。
 - 预训练模型：百度ernie-3.0-base [https://huggingface.co/nghuyong/ernie-3.0-base-zh](https://huggingface.co/nghuyong/ernie-3.0-base-zh)
-- 算法流程图：![pic/算法流程.png](https://vscode-remote+wsl-002bubuntu.vscode-resource.vscode-cdn.net/mnt/d/Programming_Design/CCF-BDCI-fewshot-classification/pic/%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B.png)
+- 算法流程图：![pic/算法流程.png](./pic/算法流程.png)
 - 伪标签产生流程
 
   传统的伪标签处理方法通常预先选定一个阈值 $c$，若模型对于测试样本的第 $i$ 类的 softmax 分数大于 $c$，则认为模型对于该样本的预测是较为可靠的，并将该样本连同其伪标签 $i$ 加入到训练集中。
 
-  在我们的做法中，我们考虑到训练数据集存在长尾分布，不再对于所有类别使用同一个固定阈值 $c$，而是为每一个类别 $i$ 设置一个单独的阈值 $c_i$。在确定第 $i$ 类数据的伪标签阈值 $c_i$ 时，我们首先筛选出所有预测标签为 $i$ 的样本及其 softmax 分数，并将其按照 softmax 分数降序排列，选择第 $\alpha$ 分位数（即从大到小排序在第 $\alpha$ 的分数）的 softmax 分数作为阈值 $c_i$，若此时产生的 $c_i$ 小于一个固定阈值 $fix\_thresh$，则将其修正为 $c_i^* = fix\_thresh$。代码参见[add_pseudo_labels.py](add_pseudo_labels.py)，生成的伪标签扩展数据集文件以"expand_train_"作为前缀 （如 `expand_train_cur_best.json`）。
+  在我们的做法中，我们考虑到训练数据集存在长尾分布，不再对于所有类别使用同一个固定阈值 $c$，而是为每一个类别 $i$ 设置一个单独的阈值 $c_i$。在确定第 $i$ 类数据的伪标签阈值 $c_i$ 时，我们首先筛选出所有预测标签为 $i$ 的样本及其 softmax 分数，并将其按照 softmax 分数降序排列，选择第 $\alpha$ 分位数（即从大到小排序在第 $\alpha$ 的分数）的 softmax 分数作为阈值 $c_i$，若此时产生的 $c_i$ 小于一个固定阈值 $fix\_thresh$，则将其修正为 $c_i^* = fix\_thresh$。代码参见[add_pseudo_labels.py](./add_pseudo_labels.py)，生成的伪标签扩展数据集文件以"expand_train_"作为前缀 （如 `expand_train_cur_best.json`）。
 - 数据增强流程
   解决方案主要对官方训练数据集 `train.json`中的尾部类别（12，22，32，35）进行如下两类数据增强：
 
@@ -46,38 +46,13 @@ B榜 0.59547145，9/108
 
 ### 大文件分享链接
 
-[Google Drive](https://drive.google.com/drive/folders/1S2kxFY6m5DUXkc6WGOfuP8RbOYLLZ7-g)
-
-```bash
-.
-|── CCF-BDCI-fewshot-classification
-│   ├── IMAGE.tar.gz
-│   ├── models
-│   ├── 2022_10_22_19_12_04-3-0.62876738448
-│   │   └── best_3.pt_half.pt
-│   ├── 2022_10_27_07_38_29_3-0.63077875449
-│   │   └── best_3.pt_half.pt
-│   ├── 2022_11_01_04_26_32-3-0.63293263685
-│   │   └── best_3.pt_half.pt
-│   ├── 2022_11_03_19_41_25-a-0.63234589689
-│   │   ├── best_1.pt_half.pt
-│   │   └── best_2.pt_half.pt
-│   ├── 2022_11_05_05_55_17-0-0.62600679310
-│   │   └── best_0.pt_half.pt
-│   ├── 2022_11_06_04_35_15-a-0.62673116125
-│   │   ├── best_1.pt_half.pt
-│   │   └── best_2.pt_half.pt
-│   └── 2022_11_06_19_08_24-a-
-│       └── best_2.pt_half.pt
-```
-
 ### Docker训练测试和预测流程
 
 训练、测试流程参见 `image/README.md`。
 
 ### Python训练测试和预测流程
 
-#### 安装依赖项
+### 安装依赖项
 
 **使用的Python版本为3.8.13**
 
