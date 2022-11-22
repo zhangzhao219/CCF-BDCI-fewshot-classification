@@ -1,124 +1,128 @@
 # CCF-BDCI 小样本数据分类任务
 
-## 参数设置
+## 赛题链接
 
-```python
-parser = argparse.ArgumentParser(description='Pytorch NLP')
+[CCF-BDCI 小样本数据分类任务](https://www.datafountain.cn/competitions/582/)
 
-parser.add_argument('--train', action='store_true', help='Whether to train')
-parser.add_argument('--test', action='store_true', help='Whether to test')
-parser.add_argument('--predict', action='store_true', help='Whether to predict')
-parser.add_argument('--predict_with_score', action='store_true', default=False, help='Whether to predict and output score')
+## 参赛成绩
 
-parser.add_argument('--batch', type=int, default=16, help='Define the batch size')
-parser.add_argument('--board', action='store_true', help='Whether to use tensorboard')
-parser.add_argument('--datetime', type=str, required=True, help='Get Time Stamp')
-parser.add_argument('--epoch', type=int, default=50, help='Training epochs')
-parser.add_argument('--gpu', type=str, nargs='+', help='Use GPU')
-parser.add_argument('--lr', type=float, default=2e-5, help='learning rate')
-parser.add_argument('--seed',type=int, default=42, help='Random Seed')
-parser.add_argument('--early_stop',type=int, default=10, help='Early Stop Epoch')
+队伍 / 人数 1426 / 1764
 
-parser.add_argument('--data_folder_dir', type=str, required=True, help='Data Folder Location')
-parser.add_argument('--data_file', type=str, help='Data Filename')
-parser.add_argument('--label', type=int, default=36, help='label num')
+A榜 0.65159296，6/468
 
-parser.add_argument('--checkpoint', type=int, default=0, help='Use checkpoint')
-parser.add_argument('--load', action='store_true', help='load from checkpoint')
-parser.add_argument('--load_pt', type=str, help='load from checkpoint')
-parser.add_argument('--save', action='store_true', help='Whether to save model')
+B榜 0.59547145，9/108
 
-parser.add_argument('--bert', type=str, required=True, help='Choose Bert')
-parser.add_argument('--dropout', type=float, default=0.4, help='dropout ratio')
-parser.add_argument('--feature_layer', type=int, default=4, help='feature layers num')
-parser.add_argument('--freeze', type=int, default=0, help='freeze bert parameters')
-parser.add_argument('--model', type=str, required=True, help='Model type')
+递补到第5名进入决赛
 
-parser.add_argument('--en', action='store_true', help='whether to use English model')
+## 参赛选手
 
-parser.add_argument('--K', type=int, default=1, help='K-fold')
-parser.add_argument('--split_test_ratio', type=float, default=0.2, help='if no Kfold, split test ratio')
+- 队长：李一鸣，中国科学院计算技术研究所，[liyiming22s1@ict.ac.cn](mailto:liyiming22s1@ict.ac.cn)
+- 队员 1：张兆，中国科学院计算技术研究所，[zhaozhao809@163.com](mailto:zhaozhao809@163.com)
+- 队员 2：李想，中国科学院自动化研究所，[2300049883@qq.com](mailto:2300049883@qq.com)
+- 队员 3：赵家乐，中国科学院计算技术研究所，[1007613549@qq.com](mailto:1007613549@qq.com)
 
-parser.add_argument('--awp', type=int, default=-1, help='AWP attack start epoch')
-parser.add_argument('--ema', type=float, default=0.0, help='EMA decay')
-parser.add_argument('--fgm', action='store_true', help='FGM attack')
-parser.add_argument('--fl',  action='store_true', default=False, help='Whether to use focal loss combined with ce loss')
-parser.add_argument('--mixif', action='store_true', help='mixup training')
-parser.add_argument('--pgd', type=int, default=0, help='PGD K')
-parser.add_argument('--rdrop', type=float, default=0.0, help='RDrop kl_weight')
-parser.add_argument('--sce',  action='store_true', help='Whether to use symmetric cross entropy loss')
-parser.add_argument('--swa', action='store_true', help='swa ensemble')
-parser.add_argument('--warmup', type=float, default=0.0, help='warm up ratio')
+## 算法说明
 
-args = parser.parse_args()
-```
+- 公开数据：仅使用官方训练集及部分官方A榜测试集（伪标签）进行模型训练，未使用任何外部数据。
+- 预训练模型：百度ernie-3.0-base [https://huggingface.co/nghuyong/ernie-3.0-base-zh](https://huggingface.co/nghuyong/ernie-3.0-base-zh)
+- 算法流程图：![pic/算法流程.png](https://vscode-remote+wsl-002bubuntu.vscode-resource.vscode-cdn.net/mnt/d/Programming_Design/CCF-BDCI-fewshot-classification/pic/%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B.png)
+- 伪标签产生流程
 
-## 训练
+  传统的伪标签处理方法通常预先选定一个阈值 $c$，若模型对于测试样本的第 $i$ 类的 softmax 分数大于 $c$，则认为模型对于该样本的预测是较为可靠的，并将该样本连同其伪标签 $i$ 加入到训练集中。
+
+  在我们的做法中，我们考虑到训练数据集存在长尾分布，不再对于所有类别使用同一个固定阈值 $c$，而是为每一个类别 $i$ 设置一个单独的阈值 $c_i$。在确定第 $i$ 类数据的伪标签阈值 $c_i$ 时，我们首先筛选出所有预测标签为 $i$ 的样本及其 softmax 分数，并将其按照 softmax 分数降序排列，选择第 $\alpha$ 分位数（即从大到小排序在第 $\alpha$ 的分数）的 softmax 分数作为阈值 $c_i$，若此时产生的 $c_i$ 小于一个固定阈值 $fix\_thresh$，则将其修正为 $c_i^* = fix\_thresh$。代码参见[add_pseudo_labels.py](add_pseudo_labels.py)，生成的伪标签扩展数据集文件以"expand_train_"作为前缀 （如 `expand_train_cur_best.json`）。
+- 数据增强流程
+  解决方案主要对官方训练数据集 `train.json`中的尾部类别（12，22，32，35）进行如下两类数据增强：
+
+  - 使用英语、法语、德语、日语、韩语五门语言对其进行**回译**。代码参见 `data/code/own_code/back_trans.py`，生成的扩展数据集文件为 `trans_aug_tail.json`。
+  - 使用 **ChineseEDA**进行随机删除、增加、同义词替换等。代码参见 `data/code/own_code/eda.py`，生成的扩展数据集文件为 `eda_data.json`。
+
+  将生成的 `trans_aug_tail.json`及 `eda_aug_tail.json`文件拼接在（经伪标签扩展）的训练数据集文件后，得到最终的训练文件，如在伪标签扩展的 `expand_train_cur_best.json`文件后拼接 `trans_aug_tail.json`、`eda_aug_tail.json`文件得到训练文件 `expand_train_cur_best_aug_tail.json`。
+- B榜测试数据预处理流程
+
+  A、B 榜测试数据均直接送入模型进行推理，无特殊预处理。
+
+## 训练测试和预测流程
+
+### 大文件分享链接
+
+[Google Drive](https://drive.google.com/drive/folders/1S2kxFY6m5DUXkc6WGOfuP8RbOYLLZ7-g)
 
 ```bash
-python main.py \
---train \
---batch 12 --board --datetime ${TIMESTAMP} --epoch 50 --gpu ${GPU} --lr 2e-5 --seed ${SEED} --early_stop 10 \
---data_folder_dir fewshot --data_file ${TRAIN_FILE} --label ${LABEL} \
---checkpoint 20 --save \
---bert ${BERT} --dropout ${DROPOUT} --feature_layer 4 --freeze 0 --model ${MODEL} \
---K ${K} --split_test_ratio 0.2 --swa
-# --en \
-# --awp 1 --ema 0.999 --fgm --fl --mixif --pgd 3 --rdrop 0.1 --sce --swa --warmup 0.1
+.
+|── CCF-BDCI-fewshot-classification
+│   ├── IMAGE.tar.gz
+│   ├── models
+│   ├── 2022_10_22_19_12_04-3-0.62876738448
+│   │   └── best_3.pt_half.pt
+│   ├── 2022_10_27_07_38_29_3-0.63077875449
+│   │   └── best_3.pt_half.pt
+│   ├── 2022_11_01_04_26_32-3-0.63293263685
+│   │   └── best_3.pt_half.pt
+│   ├── 2022_11_03_19_41_25-a-0.63234589689
+│   │   ├── best_1.pt_half.pt
+│   │   └── best_2.pt_half.pt
+│   ├── 2022_11_05_05_55_17-0-0.62600679310
+│   │   └── best_0.pt_half.pt
+│   ├── 2022_11_06_04_35_15-a-0.62673116125
+│   │   ├── best_1.pt_half.pt
+│   │   └── best_2.pt_half.pt
+│   └── 2022_11_06_19_08_24-a-
+│       └── best_2.pt_half.pt
 ```
 
-## 测试
+### Docker训练测试和预测流程
+
+训练、测试流程参见 `image/README.md`。
+
+### Python训练测试和预测流程
+
+#### 安装依赖项
+
+**使用的Python版本为3.8.13**
 
 ```bash
-python main.py \
---test \
---batch ${TEST_BATCH} --datetime ${TIMESTAMP} --gpu ${GPU} \
---data_folder_dir fewshot --data_file ${TRAIN_FILE} --label ${LABEL} \
---bert ${BERT} --dropout ${DROPOUT} --feature_layer 4 --freeze 0 --model ${MODEL} \
---K ${K} --swa
-# --en \
+pip install -r data/code/requirements.txt
 ```
 
-## 推理
+#### 直接推理
 
 ```bash
-python main.py \
---predict \
---batch ${TEST_BATCH}  --datetime ${TIMESTAMP} --gpu ${GPU} \
---data_folder_dir fewshot --data_file testA.json --label ${LABEL} \
---bert ${BERT} --dropout ${DROPOUT} --feature_layer 4 --freeze 0 --model ${MODEL} \
---K ${K} --swa
-# predict_with_score \
-# --en \
+cd data/code/inference
+bash inference_submit.sh
 ```
 
-## 打包
+会调用 `data/user_data/models`内部的9个模型进行推理，输出的结果文件在 `data/prediction_result`中，名称为 `finalB.csv`
+
+**由于推理使用的机器可能不同，结果可能有一点点差异**
+
+提交版本是 `NVIDIA GeForce RTX 2080 Ti 11G * 2`进行推理后得到的结果，如果在 `NVIDIA Tesla V100 32G * 4`上进行推理，最终结果有两条预测不同
+
+#### 训练
 
 ```bash
-python pack.py --datetime 2022_10_13_10_59_28 --score 0.0001245
+cd data/code/train
+bash 2022_10_22_19_12_04-3-0.62876738448.sh
+bash 2022_10_27_07_38_29_3-0.63077875449-8.sh
+bash 2022_11_01_04_26_32-3-0.63293263685.sh
+bash 2022_11_03_19_41_25-a-0.63234589689.sh
+bash 2022_11_05_05_55_17-0-0.62600679310.sh
+bash 2022_11_06_04_35_15-a-0.62673116125.sh
+bash 2022_11_06_19_08_24-a-.sh
 ```
 
-## 伪标签
+训练注意事项：
+
+1. 如果GPU的数量足够，上面的7个脚本可以并行运行，更改GPU卡号在每个文件的第四行 `GPU='0 1 2 3'`
+2. 训练过程大部分是在 `NVIDIA Tesla V100 32G * 4`上进行的，其中第2个脚本 `bash 2022_10_27_07_38_29_3-0.63077875449-8.sh`是在 `NVIDIA Tesla V100 32G * 8`上进行的。也就是说，训练的硬件条件最少需要 `NVIDIA Tesla V100 32G * 8`
+3. 训练后的模型存放在 `data/user_data/models_after_train`中，**注意虽然生成的模型数量大于9，但是在后面推理的时候仅用到了其中的9个模型**
+4. 有输出日志，存放在 `data/user_data/log`内部
+
+#### 使用训练后的模型进行推理
 
 ```bash
-python add_pseudo_labels.py \
---predict_csv result.csv \
---corpus_json testA.json --origin_train_json train.json \
---data_folder_dir fewshot
+cd data/code/inference
+bash inference_submit_after_train.sh
 ```
 
-## 模型集成
-
-```bash
-python ensemble.py \
---batch 256 --datetime $(date +%Y_%m_%d_%H_%M_%S) --gpu 2 3 \
---data_file data/fewshot/testA.json --model_folder_path models --label 36 \
---model_dict \
-"[
-    {'name': '2022_10_28_15_41_45/best_1.pt', 'model': 'model5', 'bert': 'pretrained/nghuyong/ernie-3.0-base-zh',  'feature_layers': 4, 'dropout': 0.3, 'language': 'zh', 'swa': False},
-    {'name': '2022_10_28_15_41_45/best_2.pt', 'model': 'model5', 'bert': 'pretrained/nghuyong/ernie-3.0-base-zh',  'feature_layers': 4, 'dropout': 0.3, 'language': 'zh', 'swa': False},
-    {'name': '2022_10_28_15_41_45/best_3.pt', 'model': 'model5', 'bert': 'pretrained/nghuyong/ernie-3.0-base-zh',  'feature_layers': 4, 'dropout': 0.3, 'language': 'zh', 'swa': False},
-]" \
---model_weight "[1, 1, 1]" \
-# --score --single
-```
+会调用 `data/user_data/models_after_train`内部的9个模型进行推理，调用的9个模型名称写在 `data/code/inference/inference_submit_after_train.sh`内部，输出的结果文件在 `data/prediction_result`中，名称为 `finalB.csv`
