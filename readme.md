@@ -24,20 +24,29 @@ B榜 0.59547145，9/108
 ## 算法说明
 
 - 公开数据：仅使用官方训练集及部分官方A榜测试集（伪标签）进行模型训练，未使用任何外部数据。
+
 - 预训练模型：百度ernie-3.0-base [https://huggingface.co/nghuyong/ernie-3.0-base-zh](https://huggingface.co/nghuyong/ernie-3.0-base-zh)
+
 - 算法流程图：![pic/算法流程.png](./pic/算法流程.png)
+
 - 伪标签产生流程
+
   传统的伪标签处理方法通常预先选定一个阈值 $c$，若模型对于测试样本的第 $i$ 类的 softmax 分数大于 $c$，则认为模型对于该样本的预测是较为可靠的，并将该样本连同其伪标签 $i$ 加入到训练集中。
 
   在我们的做法中，我们考虑到训练数据集存在长尾分布，不再对于所有类别使用同一个固定阈值 $c$，而是为每一个类别 $i$ 设置一个单独的阈值 $c_i$。在确定第 $i$ 类数据的伪标签阈值 $c_i$ 时，我们首先筛选出所有预测标签为 $i$ 的样本及其 softmax 分数，并将其按照 softmax 分数降序排列，选择第 $\alpha$ 分位数（即从大到小排序在第 $\alpha$ 的分数）的 softmax 分数作为阈值 $c_i$，若此时产生的 $c_i$ 小于一个固定阈值 $fix\_thresh$，则将其修正为 $c_i^* = fix\_thresh$。代码参见 [add_pseudo_labels.py](./add_pseudo_labels.py)，生成的伪标签扩展数据集文件以"expand_train_"作为前缀 （如 [expand_train_cur_best.json](./data/fewshot/expand_train_cur_best.json)）。
+
 - 数据增强流程
+
   解决方案主要对官方训练数据集 [train.json](./data/fewshot/train.json) 中的尾部类别（12，22，32，35）进行如下两类数据增强：
 
   - 使用英语、法语、德语、日语、韩语五门语言对其进行**回译**。代码参见 [back_trans.py](./data/back_trans.py)，生成的扩展数据集文件为 trans_aug_tail.json 。
+
   - 使用 **ChineseEDA** 进行随机删除、增加、同义词替换等。代码参见 [eda.py](./eda.py)，生成的扩展数据集文件为 eda_data.json 。
 
   将生成的 trans_aug_tail.json 及 eda_aug_tail.json 文件拼接在（经伪标签扩展）的训练数据集文件后，得到最终的训练文件，如在伪标签扩展的 [expand_train_cur_best.json](./data/fewshot/expand_train_630.json) 文件后拼接 trans_aug_tail.json 、eda_aug_tail.json 文件得到训练文件 expand_train_cur_best_aug_tail.json 。
+
 - 测试数据预处理流程
+
   A、B 榜测试数据均直接送入模型进行推理，无特殊预处理。
 
 ## 训练测试和预测流程
