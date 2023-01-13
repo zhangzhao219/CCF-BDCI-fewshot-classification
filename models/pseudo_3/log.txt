@@ -1,8 +1,0 @@
-- expand_train_3.json
-  结果文件：result_2022-10-13-23-41.csv (test F1 = 0.56821691118)
-  产生结果文件的实验配置：K=1, batch=16, bert='mengzi', board=False, checkpoint=20, data_file='expand_train_2.json', data_folder_dir='fewshot', datetime='2022-10-13-23-41', epoch=50, gpu=['0'], load=False, load_pt=None, lr=2e-05, predict=False, pseudo=False, save=True, seed=42, test=False, train=True, warmup=0.1
-  伪标签的实验配置：percentile = 50, fix_thresh = 0.70
-- expand_train_4.json
-  结果文件：result_2022-10-13-23-41.csv (test F1 = 0.56821691118)
-  产生结果文件的实验配置：(K=1, batch=16, bert='mengzi', board=False, checkpoint=20, data_file='expand_train_2.json', data_folder_dir='fewshot', datetime='2022-10-13-23-41', epoch=50, gpu=['0'], load=False, load_pt=None, lr=2e-05, predict=False, pseudo=False, save=True, seed=42, test=False, train=True, warmup=0.1)
-  伪标签的实验配置：percentile = 30, fix_thresh = 0.70
