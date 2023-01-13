@@ -133,4 +133,4 @@ dmypy.json
 *.tar
 *.bin
 pretrained/
-# doc/
+doc/
